@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavBar, StepIndicator } from '../components/Common';
-import { IconCheck, IconEdit, IconTrash } from '../components/Icons';
+import { IconCheck, IconEdit, IconTrash, IconBolt } from '../components/Icons';
 
 const INITIAL_VARIABLES = [
   { name: 'الجنس',                 type: 'اسمي',   role: 'مستقل' },
@@ -212,36 +212,87 @@ export default function PlanScreen({ onNext, onBack }) {
         </section>
       </main>
 
-      {/* Sticky footer bar */}
+      {/* Sticky payment footer */}
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0,
-        background: 'rgba(17,24,39,0.92)', backdropFilter: 'blur(12px)',
+        background: 'rgba(17,24,39,0.95)', backdropFilter: 'blur(12px)',
         borderTop: '1px solid var(--border)',
-        padding: '16px 24px', zIndex: 20,
+        zIndex: 20,
       }}>
+        {/* Beta banner */}
         <div style={{
-          maxWidth: 1080, margin: '0 auto',
-          display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap',
+          background: 'linear-gradient(90deg, rgba(124,77,255,0.18) 0%, rgba(78,161,255,0.12) 100%)',
+          borderBottom: '1px solid rgba(124,77,255,0.25)',
+          padding: '8px 24px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          fontSize: 13,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24, flex: 1 }}>
-            <div>
-              <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 2 }}>المستوى المُكتشف</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--info)', display: 'inline-block' }}/>
-                <strong style={{ fontSize: 16 }}>متوسط</strong>
+          <span style={{
+            background: 'var(--accent)', color: '#fff',
+            fontSize: 11, fontWeight: 700, padding: '2px 8px',
+            borderRadius: 'var(--r-pill)', letterSpacing: '0.04em',
+            fontFamily: 'var(--font-latin)',
+          }}>BETA</span>
+          <span style={{ color: 'var(--fg-secondary)' }}>
+            أنت في المرحلة التجريبية — التحليل مجاني مؤقتاً. السعر الكامل بعد الإطلاق:
+          </span>
+          <span className="num" style={{ color: 'var(--fg-primary)', fontWeight: 700 }}>$100.00</span>
+        </div>
+
+        <div style={{ padding: '14px 24px' }}>
+          <div style={{
+            maxWidth: 1080, margin: '0 auto',
+            display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
+          }}>
+            {/* Price info */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20, flex: 1 }}>
+              <div>
+                <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 2 }}>المستوى المُكتشف</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--info)', display: 'inline-block' }}/>
+                  <strong style={{ fontSize: 16 }}>متوسط</strong>
+                </div>
+              </div>
+              <div style={{ width: 1, height: 32, background: 'var(--border)' }}/>
+              <div>
+                <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 2 }}>السعر بعد البيتا</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className="num" style={{ fontSize: 20, fontWeight: 800, color: 'var(--fg-disabled)', textDecoration: 'line-through' }}>$100.00</span>
+                  <span className="num" style={{ fontSize: 20, fontWeight: 800, color: 'var(--success)' }}>$0.00</span>
+                </div>
               </div>
             </div>
-            <div style={{ width: 1, height: 32, background: 'var(--border)' }}/>
-            <div>
-              <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 2 }}>تكلفة التحليل</div>
-              <div className="num" style={{ fontSize: 22, fontWeight: 800, color: 'var(--fg-primary)' }}>$100.00</div>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+              <button className="btn btn--secondary" onClick={onBack} style={{ fontSize: 14 }}>
+                تعديل الخطة
+              </button>
+              <button
+                className="btn btn--secondary"
+                style={{ fontSize: 14, opacity: 0.5, cursor: 'not-allowed' }}
+                disabled
+                title="الدفع متاح بعد انتهاء البيتا">
+                ادفع <span className="num">$100.00</span>
+              </button>
+              <button
+                className="btn btn--primary btn--lg"
+                onClick={onNext}
+                style={{
+                  background: 'linear-gradient(135deg, #7c4dff 0%, #4ea1ff 100%)',
+                  boxShadow: '0 4px 20px rgba(124,77,255,0.4)',
+                  gap: 10,
+                }}>
+                <IconBolt size={18}/>
+                استخدم مجاناً
+                <span style={{
+                  background: 'rgba(255,255,255,0.2)',
+                  fontSize: 11, fontWeight: 700,
+                  padding: '2px 7px', borderRadius: 'var(--r-pill)',
+                  fontFamily: 'var(--font-latin)', letterSpacing: '0.04em',
+                }}>BETA</span>
+              </button>
             </div>
-          </div>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <button className="btn btn--secondary" onClick={onBack}>تعديل الخطة</button>
-            <button className="btn btn--primary btn--lg" onClick={onNext}>
-              <IconCheck size={18}/> موافق — ادفع وابدأ التحليل
-            </button>
           </div>
         </div>
       </div>
