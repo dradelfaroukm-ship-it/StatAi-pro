@@ -3,35 +3,6 @@ import { NavBar, StepIndicator } from '../components/Common';
 import { IconCheck, IconEdit, IconTrash, IconBolt } from '../components/Icons';
 import { useLanguage } from '../context/LanguageContext';
 
-const INITIAL_VARIABLES = [
-  { nameAr: 'الجنس',                 typeKey: 'typeNominal',       roleKey: 'roleIndependent' },
-  { nameAr: 'المستوى الأكاديمي',      typeKey: 'typeOrdinal',       roleKey: 'roleIndependent' },
-  { nameAr: 'ساعات استخدام المنصة',   typeKey: 'typeQuantitative',  roleKey: 'roleIndependent' },
-  { nameAr: 'دوافع التعلم',           typeKey: 'typeQuantitative',  roleKey: 'roleIndependent' },
-  { nameAr: 'المعدل التراكمي (GPA)',  typeKey: 'typeQuantitative',  roleKey: 'roleDependent'   },
-];
-
-const METHODS = [
-  {
-    name: 'الإحصاء الوصفي', hyp: 'استكشافي',
-    why: 'ينبغي البدء بفهم طبيعة البيانات من خلال المتوسطات الحسابية والانحرافات المعيارية والتوزيعات، إذ يُشكّل ذلك الأساس المنهجي لأي تحليل استدلالي لاحق.',
-    rel: 'يشمل جميع المتغيرات الكمية في الدراسة، ولا سيما المعدل التراكمي وساعات استخدام المنصة.',
-    stats: 'المتوسط الحسابي، الوسيط، الانحراف المعياري، معاملا الالتواء والتفلطح.',
-  },
-  {
-    name: 'اختبار T للعينات المستقلة', hyp: 'الفرض الأول',
-    why: 'يقارن الفرض الأول متوسطَين مستقلَّين (الذكور والإناث) في متغير كمي (المعدل التراكمي)، وهو ما يجعل اختبار T للعينات المستقلة الأسلوب الإحصائي الأنسب منهجياً.',
-    rel: 'الجنس متغير اسمي ثنائي → مستقل. GPA كمي → تابع.',
-    stats: 'قيمة t، درجات الحرية، مستوى الدلالة الإحصائية (p-value)، حجم الأثر (Cohen\'s d).',
-  },
-  {
-    name: 'تحليل الانحدار المتعدد', hyp: 'الفرض الثاني',
-    why: 'يتناول الفرض تأثير متغيرات مستقلة متعددة في المعدل التراكمي، ويقيس تحليل الانحدار المتعدد إسهام كل متغير بمعزل عن الآخرين مع تثبيت تأثيرها.',
-    rel: 'ثلاثة متغيرات مستقلة (كمية وترتيبية) → المعدل التراكمي (متغير تابع كمي).',
-    stats: 'معامل التحديد R²، معاملات بيتا المعيارية β، قيمة F، اختبار VIF للكشف عن تعدد الخطية.',
-  },
-];
-
 const TYPE_KEYS = ['typeNominal', 'typeOrdinal', 'typeQuantitative'];
 const ROLE_KEYS = ['roleIndependent', 'roleDependent', 'roleMediator'];
 
@@ -57,46 +28,63 @@ const iconBtnStyle = {
   color: 'var(--fg-muted)', cursor: 'pointer', padding: 6, borderRadius: 6, display: 'flex',
 };
 
-const MethodCard = ({ m, idx }) => (
-  <div className="card" style={{ padding: 20 }}>
-    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
-        <div style={{
-          width: 30, height: 30, borderRadius: 8, background: 'var(--accent-tint)', color: 'var(--accent)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontWeight: 600, fontFamily: 'var(--font-numeric)', fontSize: 13, flexShrink: 0,
-        }}>{idx}</div>
-        <div>
-          <h3 className="h3" style={{ margin: 0, fontWeight: 600 }}>{m.name}</h3>
-          <div style={{ marginTop: 5 }}><span className="chip chip--advanced">{m.hyp}</span></div>
+const MethodCard = ({ m, idx }) => {
+  const { t } = useLanguage();
+  return (
+    <div className="card" style={{ padding: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
+          <div style={{
+            width: 30, height: 30, borderRadius: 8, background: 'var(--accent-tint)', color: 'var(--accent)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 600, fontFamily: 'var(--font-numeric)', fontSize: 13, flexShrink: 0,
+          }}>{idx}</div>
+          <div>
+            <h3 className="h3" style={{ margin: 0, fontWeight: 600 }}>{m.name}</h3>
+            <div style={{ marginTop: 5 }}><span className="chip chip--advanced">{m.hyp}</span></div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 4 }}>
+          <button style={iconBtnStyle}><IconEdit size={14}/></button>
+          <button style={iconBtnStyle}><IconTrash size={14}/></button>
         </div>
       </div>
-      <div style={{ display: 'flex', gap: 4 }}>
-        <button style={iconBtnStyle}><IconEdit size={14}/></button>
-        <button style={iconBtnStyle}><IconTrash size={14}/></button>
+      <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {[
+          { q: t.methodWhyQ,   a: m.why },
+          { q: t.methodRelQ,   a: m.rel },
+          { q: t.methodStatsQ, a: m.stats },
+        ].map(b => (
+          <div key={b.q} className="explain-box">
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{b.q}</div>
+            <div style={{ fontSize: 13, color: 'var(--fg-primary)', lineHeight: 1.7 }}>{b.a}</div>
+          </div>
+        ))}
       </div>
     </div>
-    <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {[
-        { q: 'لماذا اختُير هذا الأسلوب؟',            a: m.why },
-        { q: 'ما علاقته بالمتغيرات؟',                a: m.rel },
-        { q: 'ما المعاملات الإحصائية المستخدمة؟',     a: m.stats },
-      ].map(b => (
-        <div key={b.q} className="explain-box">
-          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{b.q}</div>
-          <div style={{ fontSize: 13, color: 'var(--fg-primary)', lineHeight: 1.7 }}>{b.a}</div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
+  );
+};
 
 const thStyle = { textAlign: 'start', padding: '11px 16px', fontSize: 12, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' };
 const tdStyle = { textAlign: 'start', padding: '10px 16px', fontSize: 13, color: 'var(--fg-primary)', borderTop: '1px solid var(--border-subtle)' };
 
 export default function PlanScreen({ onNext, onBack }) {
   const { t } = useLanguage();
-  const [variables, setVariables] = useState(INITIAL_VARIABLES);
+
+  const [variables, setVariables] = useState(() => [
+    { name: t.varGender,            typeKey: 'typeNominal',      roleKey: 'roleIndependent' },
+    { name: t.varAcademicLevel,     typeKey: 'typeOrdinal',      roleKey: 'roleIndependent' },
+    { name: t.varUsageHours,        typeKey: 'typeQuantitative', roleKey: 'roleIndependent' },
+    { name: t.varLearningMotivation,typeKey: 'typeQuantitative', roleKey: 'roleIndependent' },
+    { name: t.varGPA,               typeKey: 'typeQuantitative', roleKey: 'roleDependent'   },
+  ]);
+
+  const methods = [
+    { name: t.m1Name, hyp: t.m1Hyp, why: t.m1Why, rel: t.m1Rel, stats: t.m1Stats },
+    { name: t.m2Name, hyp: t.m2Hyp, why: t.m2Why, rel: t.m2Rel, stats: t.m2Stats },
+    { name: t.m3Name, hyp: t.m3Hyp, why: t.m3Why, rel: t.m3Rel, stats: t.m3Stats },
+  ];
+
   const [editingIdx, setEditingIdx] = useState(null);
 
   const updateVar = (idx, field, val) =>
@@ -117,8 +105,8 @@ export default function PlanScreen({ onNext, onBack }) {
             color: 'var(--success)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}><IconCheck size={14}/></span>
           <div style={{ fontSize: 13 }}>
-            <strong>{t.dataValid}</strong> — <span className="num">350</span> {t.rowsLabel || 'مفردة'}،{' '}
-            <span className="num">12</span> {t.varNameCol || 'متغير'}، لا توجد قيم مفقودة.
+            <strong>{t.dataValid}</strong> — <span className="num">350</span> {t.rowsLabel}،{' '}
+            <span className="num">12</span> {t.varNameCol}، {t.noMissingValues}.
           </div>
         </div>
 
@@ -140,8 +128,8 @@ export default function PlanScreen({ onNext, onBack }) {
                   <tr key={i} style={{ background: i % 2 ? 'var(--bg-card)' : '#111827' }}>
                     <td style={tdStyle}>
                       {editingIdx === i
-                        ? <input className="input" value={v.nameAr} onChange={e => updateVar(i, 'nameAr', e.target.value)} style={{ padding: '5px 8px', fontSize: 13 }}/>
-                        : v.nameAr}
+                        ? <input className="input" value={v.name} onChange={e => updateVar(i, 'name', e.target.value)} style={{ padding: '5px 8px', fontSize: 13 }}/>
+                        : v.name}
                     </td>
                     <td style={tdStyle}>
                       {editingIdx === i
@@ -173,7 +161,7 @@ export default function PlanScreen({ onNext, onBack }) {
         <section style={{ marginTop: 28 }}>
           <h2 className="h2" style={{ marginBottom: 12 }}>{t.methodsSection}</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {METHODS.map((m, i) => <MethodCard key={m.name} m={m} idx={i + 1}/>)}
+            {methods.map((m, i) => <MethodCard key={i} m={m} idx={i + 1}/>)}
           </div>
         </section>
       </main>
@@ -184,7 +172,6 @@ export default function PlanScreen({ onNext, onBack }) {
         background: 'rgba(10,15,30,0.97)', backdropFilter: 'blur(12px)',
         borderTop: '1px solid var(--border)', zIndex: 20,
       }}>
-        {/* Beta banner */}
         <div style={{
           background: 'rgba(108,99,255,0.08)',
           borderBottom: '1px solid rgba(108,99,255,0.18)',

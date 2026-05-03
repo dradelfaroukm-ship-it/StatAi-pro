@@ -3,13 +3,13 @@ import { NavBar } from '../components/Common';
 import { IconPlus, IconMore, IconEdit, IconCopy, IconTrash, IconCheck, IconRefresh } from '../components/Icons';
 import { useLanguage } from '../context/LanguageContext';
 
-const SAMPLE_PROJECTS = [
-  { id: 1, title: 'أثر استخدام التعلم الإلكتروني على التحصيل الأكاديمي', level: 'advanced', date: '2026-04-28', status: 'done' },
-  { id: 2, title: 'العلاقة بين ساعات النوم والأداء الدراسي لدى طلاب الجامعة', level: 'medium', date: '2026-04-22', status: 'running' },
-  { id: 3, title: 'تحليل وصفي لمستويات القلق الاختباري', level: 'basic', date: '2026-04-15', status: 'done' },
-  { id: 4, title: 'الفروق بين الجنسين في الذكاء العاطفي', level: 'medium', date: '2026-04-10', status: 'draft' },
-  { id: 5, title: 'نمذجة المعادلات الهيكلية لدوافع الإنجاز', level: 'advanced', date: '2026-03-30', status: 'done' },
-  { id: 6, title: 'مقارنة طرق التدريس الثلاث على نتائج الرياضيات', level: 'medium', date: '2026-03-22', status: 'running' },
+const PROJECT_META = [
+  { id: 1, key: 'proj1', level: 'advanced', date: '2026-04-28', status: 'done' },
+  { id: 2, key: 'proj2', level: 'medium',   date: '2026-04-22', status: 'running' },
+  { id: 3, key: 'proj3', level: 'basic',    date: '2026-04-15', status: 'done' },
+  { id: 4, key: 'proj4', level: 'medium',   date: '2026-04-10', status: 'draft' },
+  { id: 5, key: 'proj5', level: 'advanced', date: '2026-03-30', status: 'done' },
+  { id: 6, key: 'proj6', level: 'medium',   date: '2026-03-22', status: 'running' },
 ];
 
 const LEVEL_DOT = { basic: 'var(--success)', medium: 'var(--info)', advanced: 'var(--accent)' };
@@ -100,6 +100,7 @@ const ProjectCard = ({ p, onOpen }) => {
 
 export default function ProjectsScreen({ onNew, onOpen }) {
   const { t } = useLanguage();
+  const projects = PROJECT_META.map(p => ({ ...p, title: t[p.key] }));
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
       <NavBar/>
@@ -114,7 +115,7 @@ export default function ProjectsScreen({ onNew, onOpen }) {
           </button>
         </div>
         <div className="grid-3">
-          {SAMPLE_PROJECTS.map(p => <ProjectCard key={p.id} p={p} onOpen={onOpen}/>)}
+          {projects.map(p => <ProjectCard key={p.id} p={p} onOpen={onOpen}/>)}
         </div>
       </main>
     </div>

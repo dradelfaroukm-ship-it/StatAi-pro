@@ -7,11 +7,10 @@ import UploadScreen from './screens/UploadScreen';
 import PlanScreen from './screens/PlanScreen';
 import ResultsScreen from './screens/ResultsScreen';
 
-const SCREEN_KEYS   = ['language', 'auth', 'projects', 'upload', 'plan', 'results'];
-const SCREEN_LABELS = { language: 'اللغة', auth: 'الدخول', projects: 'المشاريع', upload: 'الرفع', plan: 'الخطة', results: 'النتائج' };
+const SCREEN_KEYS = ['language', 'auth', 'projects', 'upload', 'plan', 'results'];
 
 export default function App() {
-  const { dir, font } = useLanguage();
+  const { dir, font, t, code } = useLanguage();
 
   const getInitialScreen = () => {
     const hash = window.location.hash.replace('#', '');
@@ -22,21 +21,30 @@ export default function App() {
 
   useEffect(() => {
     window.location.hash = screen;
-    document.title = `StatAI — ${SCREEN_LABELS[screen] || ''}`;
+    document.title = `StatAI`;
   }, [screen]);
 
   const go = (key) => () => setScreen(key);
+
+  const SCREEN_LABELS = {
+    language: t.screenLang,
+    auth:     t.screenAuth,
+    projects: t.screenProjects,
+    upload:   t.screenUpload,
+    plan:     t.screenPlan,
+    results:  t.screenResults,
+  };
 
   return (
     <div dir={dir} style={{ fontFamily: font }}>
       {/* Dev screen switcher */}
       <div style={{
-        position: 'fixed', top: 16, left: 16,
+        position: 'fixed', top: 12, left: 12,
         zIndex: 100,
-        background: 'rgba(17,24,39,0.92)', backdropFilter: 'blur(12px)',
+        background: 'rgba(10,15,30,0.95)', backdropFilter: 'blur(12px)',
         border: '1px solid var(--border)',
-        borderRadius: 12, padding: 6,
-        display: 'flex', gap: 4, flexWrap: 'wrap', maxWidth: '92vw',
+        borderRadius: 8, padding: 4,
+        display: 'flex', gap: 3, flexWrap: 'wrap', maxWidth: '92vw',
         boxShadow: 'var(--shadow-lg)',
       }}>
         {SCREEN_KEYS.map((key, i) => (
@@ -44,15 +52,16 @@ export default function App() {
             style={{
               background: screen === key ? 'var(--accent)' : 'transparent',
               border: 'none',
-              color: screen === key ? '#fff' : 'var(--fg-secondary)',
-              padding: '8px 12px', borderRadius: 8,
-              fontFamily: 'var(--font-arabic)',
-              fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              color: screen === key ? '#fff' : 'var(--fg-muted)',
+              padding: '6px 10px', borderRadius: 5,
+              fontFamily: 'var(--font-latin)',
+              fontSize: 11, fontWeight: 500, cursor: 'pointer',
               transition: 'all 160ms var(--ease-out)',
+              letterSpacing: '0.01em',
             }}
             onMouseEnter={e => { if (screen !== key) { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--fg-primary)'; }}}
-            onMouseLeave={e => { if (screen !== key) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--fg-secondary)'; }}}>
-            <span style={{ fontFamily: 'var(--font-numeric)', marginInlineEnd: 4 }}>{i + 1}.</span>
+            onMouseLeave={e => { if (screen !== key) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--fg-muted)'; }}}>
+            <span style={{ fontFamily: 'var(--font-numeric)', marginInlineEnd: 3, opacity: 0.5 }}>{i + 1}.</span>
             {SCREEN_LABELS[key]}
           </button>
         ))}
@@ -61,9 +70,10 @@ export default function App() {
       {screen === 'language' && <LanguageScreen onContinue={go('auth')}/>}
       {screen === 'auth'     && <AuthScreen onLogin={go('projects')}/>}
       {screen === 'projects' && <ProjectsScreen onNew={go('upload')} onOpen={go('plan')}/>}
-      {screen === 'upload'   && <UploadScreen onNext={go('plan')} onBack={go('projects')}/>}
-      {screen === 'plan'     && <PlanScreen onNext={go('results')} onBack={go('upload')}/>}
-      {screen === 'results'  && <ResultsScreen onBack={go('plan')}/>}
+      {/* key={code} remounts these screens when language changes so state re-inits with new translations */}
+      {screen === 'upload'   && <UploadScreen key={code} onNext={go('plan')} onBack={go('projects')}/>}
+      {screen === 'plan'     && <PlanScreen   key={code} onNext={go('results')} onBack={go('upload')}/>}
+      {screen === 'results'  && <ResultsScreen key={code} onBack={go('plan')}/>}
     </div>
   );
 }

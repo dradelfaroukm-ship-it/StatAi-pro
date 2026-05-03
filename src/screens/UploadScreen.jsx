@@ -9,9 +9,9 @@ export default function UploadScreen({ onNext, onBack }) {
   const { t } = useLanguage();
   const [uploaded, setUploaded] = useState(false);
   const [dragging, setDragging] = useState(false);
-  const [title, setTitle] = useState('أثر التعلم الإلكتروني على التحصيل الأكاديمي لدى طلاب الجامعة');
-  const [hyp, setHyp] = useState('1. توجد فروق دالة إحصائياً في التحصيل بين مستخدمي المنصة وغيرهم.\n2. توجد علاقة ارتباطية بين عدد ساعات الاستخدام والمعدل التراكمي.');
-  const [goals, setGoals] = useState('الكشف عن أثر استخدام منصات التعلم الإلكتروني على متوسط درجات الطلاب في مقررات السنة الثانية.');
+  const [title, setTitle] = useState(() => t.defaultResearchTitle);
+  const [hyp, setHyp]     = useState(() => t.defaultHypotheses);
+  const [goals, setGoals] = useState(() => t.defaultGoals);
   const fileInput = useRef(null);
 
   const handleDrop = (e) => { e.preventDefault(); setDragging(false); if (e.dataTransfer.files.length > 0) setUploaded(true); };

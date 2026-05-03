@@ -3,25 +3,6 @@ import { NavBar, StepIndicator } from '../components/Common';
 import { IconWord, IconPdf, IconCopy, IconCheck, IconX, IconSpark, IconArrowL } from '../components/Icons';
 import { useLanguage } from '../context/LanguageContext';
 
-const DESC_TABLE = [
-  { v: 'العمر',                 n: 350, mean: 21.4,  sd: 1.83, min: 18,  max: 27  },
-  { v: 'ساعات الاستخدام/أسبوع', n: 350, mean: 8.62,  sd: 3.94, min: 0,   max: 24  },
-  { v: 'دوافع التعلم',           n: 350, mean: 3.81,  sd: 0.71, min: 1,   max: 5   },
-  { v: 'المعدل التراكمي (GPA)', n: 350, mean: 3.12,  sd: 0.46, min: 1.8, max: 4.0 },
-];
-
-const REGRESSION_TABLE = [
-  { v: '(الثابت)',          b: 1.842, beta: '—',   t: 8.93, p: '< 0.001' },
-  { v: 'ساعات الاستخدام',   b: 0.054, beta: 0.412, t: 7.21, p: '< 0.001' },
-  { v: 'دوافع التعلم',      b: 0.218, beta: 0.298, t: 5.18, p: '< 0.001' },
-  { v: 'المستوى الأكاديمي', b: 0.071, beta: 0.094, t: 1.74, p: '0.082'   },
-];
-
-const HYPOTHESES = [
-  { id: 1, text: 'توجد فروق دالة إحصائياً في المعدل التراكمي بين الذكور والإناث', accepted: false },
-  { id: 2, text: 'يوجد أثر دال لساعات استخدام المنصة ودوافع التعلم على المعدل التراكمي', accepted: true },
-];
-
 const BarChart = () => {
   const data = [{ l:'1.0–2.0',v:8},{l:'2.0–2.5',v:32},{l:'2.5–3.0',v:78},{l:'3.0–3.5',v:142},{l:'3.5–4.0',v:90}];
   const max = Math.max(...data.map(d => d.v));
@@ -36,8 +17,7 @@ const BarChart = () => {
         </linearGradient>
       </defs>
       {[0,.25,.5,.75,1].map(t => (
-        <line key={t} x1={P} x2={W-P} y1={H-P-t*(H-P*2)} y2={H-P-t*(H-P*2)}
-              stroke="#1e2a45" strokeDasharray="3 5"/>
+        <line key={t} x1={P} x2={W-P} y1={H-P-t*(H-P*2)} y2={H-P-t*(H-P*2)} stroke="#1e2a45" strokeDasharray="3 5"/>
       ))}
       {data.map((d,i) => {
         const h=(d.v/max)*(H-P*2), x=P+i*((W-P*2)/data.length)+5, y=H-P-h;
@@ -59,15 +39,10 @@ const ScatterChart = () => {
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{width:'100%',direction:'ltr'}}>
       {[0,.25,.5,.75,1].map(t=>(
-        <line key={t} x1={P} x2={W-P} y1={H-P-t*(H-P*2)} y2={H-P-t*(H-P*2)}
-              stroke="#1e2a45" strokeDasharray="3 5"/>
+        <line key={t} x1={P} x2={W-P} y1={H-P-t*(H-P*2)} y2={H-P-t*(H-P*2)} stroke="#1e2a45" strokeDasharray="3 5"/>
       ))}
-      {pts.map((p,i)=>(
-        <circle key={i} cx={sx(p.x)} cy={sy(p.y)} r="3.5" fill="#6c63ff" opacity="0.55"/>
-      ))}
+      {pts.map((p,i)=>(<circle key={i} cx={sx(p.x)} cy={sy(p.y)} r="3.5" fill="#6c63ff" opacity="0.55"/>))}
       <line x1={sx(0)} y1={sy(1.9)} x2={sx(24)} y2={sy(3.94)} stroke="#6c63ff" strokeWidth="1.5" strokeDasharray="6 5" opacity="0.7"/>
-      <text x={W-P} y={H-10} textAnchor="end" fontFamily="Inter" fontSize="10" fill="#64748b">ساعات الاستخدام / أسبوع</text>
-      <text x={P} y={18} fontFamily="Inter" fontSize="10" fill="#64748b">GPA</text>
     </svg>
   );
 };
@@ -85,14 +60,14 @@ const Commentary = ({ children }) => {
   );
 };
 
-const thStyle = { padding: '10px 14px', textAlign: 'start', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--fg-muted)' };
-
 const ResultsTable = ({ headers, rows }) => (
   <div className="card table-scroll" style={{ padding: 0, overflow: 'hidden', marginTop: 8 }}>
     <table style={{ width:'100%', borderCollapse:'collapse', minWidth:400 }}>
       <thead>
-        <tr style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)' }}>
-          {headers.map(h => <th key={h} style={thStyle}>{h}</th>)}
+        <tr style={{ background:'var(--bg-secondary)', borderBottom:'1px solid var(--border)' }}>
+          {headers.map(h => (
+            <th key={h} style={{ padding:'10px 14px', textAlign:'start', fontSize:11, fontWeight:600, letterSpacing:'0.04em', textTransform:'uppercase', color:'var(--fg-muted)' }}>{h}</th>
+          ))}
         </tr>
       </thead>
       <tbody>
@@ -120,6 +95,25 @@ export default function ResultsScreen({ onBack }) {
   const { t } = useLanguage();
   const [approved, setApproved] = useState(false);
 
+  const descTable = [
+    { v: t.rdVar1, n: 350, mean: 21.4,  sd: 1.83, min: 18,  max: 27  },
+    { v: t.rdVar2, n: 350, mean: 8.62,  sd: 3.94, min: 0,   max: 24  },
+    { v: t.rdVar3, n: 350, mean: 3.81,  sd: 0.71, min: 1,   max: 5   },
+    { v: t.rdVar4, n: 350, mean: 3.12,  sd: 0.46, min: 1.8, max: 4.0 },
+  ];
+
+  const regressionTable = [
+    { v: t.rrVarConst, b: 1.842, beta: '—',   t_: 8.93, p: '< 0.001' },
+    { v: t.rrVar1,     b: 0.054, beta: 0.412, t_: 7.21, p: '< 0.001' },
+    { v: t.rrVar2,     b: 0.218, beta: 0.298, t_: 5.18, p: '< 0.001' },
+    { v: t.rrVar3,     b: 0.071, beta: 0.094, t_: 1.74, p: '0.082'   },
+  ];
+
+  const hypotheses = [
+    { id: 1, text: t.hyp1Text, accepted: false },
+    { id: 2, text: t.hyp2Text, accepted: true  },
+  ];
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
       <NavBar/>
@@ -141,14 +135,10 @@ export default function ResultsScreen({ onBack }) {
         <section>
           <h2 className="h2">{t.descStats}</h2>
           <ResultsTable
-            headers={['المتغير','N','المتوسط','الانحراف','الأدنى','الأعلى']}
-            rows={DESC_TABLE.map(r=>[r.v,r.n,r.mean.toFixed(2),r.sd.toFixed(2),r.min,r.max])}/>
+            headers={[t.thVariable, 'N', t.thMean, t.thSD, t.thMin, t.thMax]}
+            rows={descTable.map(r=>[r.v, r.n, r.mean.toFixed(2), r.sd.toFixed(2), r.min, r.max])}/>
           <div style={{ marginTop:20 }}><BarChart/></div>
-          <Commentary>
-            بلغ متوسط المعدل التراكمي للعينة <span className="num">3.12</span> بانحراف معياري قدره <span className="num">0.46</span>،
-            مما يُشير إلى تجانس نسبي في الأداء الأكاديمي. وقد تمركز ما يزيد على <span className="num">66%</span> من المشاركين ضمن الفئة <span className="num">3.0–4.0</span>،
-            مما يدل على أن العينة ذات مستوى أكاديمي مرتفع وتُستوفى فيها شروط التحليل الاستدلالي.
-          </Commentary>
+          <Commentary>{t.descCommentary}</Commentary>
         </section>
 
         <Divider/>
@@ -161,14 +151,10 @@ export default function ResultsScreen({ onBack }) {
             <span className="chip chip--success"><span className="latin">p &lt; 0.001</span></span>
           </div>
           <ResultsTable
-            headers={['المتغير','B','β','t','p']}
-            rows={REGRESSION_TABLE.map(r=>[r.v, typeof r.b==='number'?r.b.toFixed(3):r.b, r.beta, r.t, r.p])}/>
+            headers={[t.thVariable, 'B', 'β', 't', 'p']}
+            rows={regressionTable.map(r=>[r.v, typeof r.b==='number'?r.b.toFixed(3):r.b, r.beta, r.t_, r.p])}/>
           <div style={{ marginTop:20 }}><ScatterChart/></div>
-          <Commentary>
-            يُفسّر النموذج الانحداري <span className="num">38.7%</span> من تباين المعدل التراكمي (<span className="latin">R² = 0.387</span>)، وهي نسبة مقبولة وفق معايير البحوث التربوية والنفسية.
-            تُعدّ ساعات استخدام المنصة المتنبئ الأقوى إحصائياً (<span className="latin">β = 0.412</span>)، تليها دوافع التعلم (<span className="latin">β = 0.298</span>).
-            في المقابل، لم يبلغ أثر المستوى الأكاديمي حد الدلالة الإحصائية (<span className="latin">p = 0.082</span>)، مما يستدعي الحذر في تفسير إسهامه.
-          </Commentary>
+          <Commentary>{t.regCommentary}</Commentary>
         </section>
 
         <Divider/>
@@ -176,7 +162,7 @@ export default function ResultsScreen({ onBack }) {
         <section>
           <h2 className="h2">{t.hypothesesSummary}</h2>
           <div style={{ display:'flex', flexDirection:'column', gap:10, marginTop:12 }}>
-            {HYPOTHESES.map(h => (
+            {hypotheses.map(h => (
               <div key={h.id} className="card" style={{
                 padding:16, display:'flex', alignItems:'center', gap:14,
                 borderColor: h.accepted ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)',
@@ -188,7 +174,7 @@ export default function ResultsScreen({ onBack }) {
                   display:'flex', alignItems:'center', justifyContent:'center',
                 }}>{h.accepted ? <IconCheck size={16}/> : <IconX size={16}/>}</div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:11, color:'var(--fg-muted)', marginBottom:2, textTransform:'uppercase', letterSpacing:'0.04em' }}>
+                  <div style={{ fontSize:11, color:'var(--fg-muted)', marginBottom:3, textTransform:'uppercase', letterSpacing:'0.04em' }}>
                     {t.hypothesisLabel} <span className="num">{h.id}</span>
                   </div>
                   <div style={{ fontSize:13, color:'var(--fg-primary)', lineHeight:1.6 }}>{h.text}</div>

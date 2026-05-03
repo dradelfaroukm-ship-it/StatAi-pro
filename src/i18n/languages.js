@@ -1,6 +1,9 @@
 // RTL language codes
 export const RTL_LANGS = new Set(['ar', 'fa', 'ur', 'he', 'yi', 'ps', 'sd', 'ug']);
 
+// Top 10 featured languages shown as large cards on the language screen
+export const TOP_LANG_CODES = ['ar', 'en', 'fr', 'es', 'de', 'pt', 'zh-CN', 'hi', 'tr', 'fa'];
+
 // Arabic-script font (Cairo); everything else uses Inter + system fallbacks
 export const getFontFamily = (code) =>
   RTL_LANGS.has(code) && ['ar', 'fa', 'ur', 'ps', 'sd', 'ug'].includes(code)
