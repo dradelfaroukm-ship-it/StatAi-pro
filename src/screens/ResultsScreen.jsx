@@ -127,9 +127,9 @@ export default function ResultsScreen({ onBack }) {
             rows={DESC_TABLE.map(r=>[r.v,r.n,r.mean.toFixed(2),r.sd.toFixed(2),r.min,r.max])}/>
           <div style={{ marginTop:24 }}><BarChart/></div>
           <Commentary>
-            متوسط المعدل التراكمي للعينة <span className="num">3.12</span> بانحراف <span className="num">0.46</span>،
-            وهو ما يعكس تجانس نسبي. أكثر من <span className="num">66%</span> من الطلاب يقعون في الفئة <span className="num">3.0–4.0</span>،
-            ما يدل على عينة ذات أداء أكاديمي مرتفع وقابلة للتحليل الاستدلالي.
+            بلغ متوسط المعدل التراكمي للعينة <span className="num">3.12</span> بانحراف معياري قدره <span className="num">0.46</span>،
+            مما يُشير إلى تجانس نسبي في الأداء الأكاديمي. وقد تمركز ما يزيد على <span className="num">66%</span> من المشاركين ضمن الفئة <span className="num">3.0–4.0</span>،
+            مما يدل على أن العينة ذات مستوى أكاديمي مرتفع وتُستوفى فيها شروط التحليل الاستدلالي.
           </Commentary>
         </section>
 
@@ -147,9 +147,9 @@ export default function ResultsScreen({ onBack }) {
             rows={REGRESSION_TABLE.map(r=>[r.v, typeof r.b==='number'?r.b.toFixed(3):r.b, r.beta, r.t, r.p])}/>
           <div style={{ marginTop:24 }}><ScatterChart/></div>
           <Commentary>
-            النموذج يفسّر <span className="num">38.7%</span> من تباين المعدل التراكمي، وهي قيمة مقبولة في البحوث التربوية.
-            ساعات استخدام المنصة (<span className="latin">β = 0.412</span>) هي أقوى منبئ، يليها دوافع التعلم (<span className="latin">β = 0.298</span>).
-            أثر المستوى الأكاديمي غير دال (<span className="latin">p = 0.082</span>).
+            يُفسّر النموذج الانحداري <span className="num">38.7%</span> من تباين المعدل التراكمي (<span className="latin">R² = 0.387</span>)، وهي نسبة مقبولة وفق معايير البحوث التربوية والنفسية.
+            تُعدّ ساعات استخدام المنصة المتنبئ الأقوى إحصائياً (<span className="latin">β = 0.412</span>)، تليها دوافع التعلم (<span className="latin">β = 0.298</span>).
+            في المقابل، لم يبلغ أثر المستوى الأكاديمي حد الدلالة الإحصائية (<span className="latin">p = 0.082</span>)، مما يستدعي الحذر في تفسير إسهامه.
           </Commentary>
         </section>
 
