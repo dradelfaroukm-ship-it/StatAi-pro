@@ -1231,13 +1231,25 @@ const fa = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Registry — all other codes fall back to English automatically
+// Per-language files (partial — only keys they define override English)
+// ─────────────────────────────────────────────────────────────────────────────
+import nl from './translations/nl.js';
+import ru from './translations/ru.js';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Registry
 // ─────────────────────────────────────────────────────────────────────────────
 const TRANSLATIONS = {
   ar, en, fr, es, de, pt,
   'zh-CN': zhCN,
-  'zh-TW': zhCN, // Traditional falls back to Simplified
+  'zh-TW': zhCN,
   hi, tr, fa,
+  nl, ru,
 };
 
-export const getT = (code) => TRANSLATIONS[code] ?? TRANSLATIONS['en'];
+// Merge with English so any missing key gracefully falls back instead of showing undefined
+export const getT = (code) => {
+  const lang = TRANSLATIONS[code];
+  if (!lang) return TRANSLATIONS['en'];
+  return { ...TRANSLATIONS['en'], ...lang };
+};
