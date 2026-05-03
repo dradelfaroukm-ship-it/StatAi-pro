@@ -8,50 +8,58 @@ const TOP_LANGUAGES  = LANGUAGES.filter(l => TOP_LANG_CODES.includes(l.code));
 const MORE_LANGUAGES = LANGUAGES.filter(l => !TOP_LANG_CODES.includes(l.code));
 
 // ── Large featured card (top 10) ────────────────────────────────────────────
-const FeaturedCard = ({ lang, selected, onClick }) => (
-  <button
-    onClick={onClick}
-    style={{
-      display: 'flex', alignItems: 'center', gap: 12,
-      padding: '14px 18px',
-      background: selected ? 'var(--accent-tint)' : 'var(--bg-card)',
-      border: `1px solid ${selected ? 'var(--accent)' : 'var(--border-subtle)'}`,
-      borderRadius: 'var(--r-card)',
-      color: selected ? 'var(--fg-primary)' : 'var(--fg-secondary)',
-      fontFamily: 'inherit', fontSize: 14, fontWeight: selected ? 500 : 400,
-      cursor: 'pointer', textAlign: 'start', width: '100%',
-      transition: 'all 160ms var(--ease-out)',
-    }}
-    onMouseEnter={e => { if (!selected) { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--fg-primary)'; }}}
-    onMouseLeave={e => { if (!selected) { e.currentTarget.style.borderColor = 'var(--border-subtle)'; e.currentTarget.style.color = 'var(--fg-secondary)'; }}}>
-    <span style={{ fontSize: 20, lineHeight: 1, flexShrink: 0 }}>{lang.flag}</span>
-    <span style={{ flex: 1 }}>{lang.name}</span>
-    {selected && <IconCheck size={15} style={{ color: 'var(--accent)', flexShrink: 0 }}/>}
-  </button>
-);
+const FeaturedCard = ({ lang, selected, onClick }) => {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '14px 18px',
+        background: selected ? 'var(--accent-tint)' : hovered ? 'var(--bg-hover)' : 'var(--bg-card)',
+        border: `1px solid ${selected ? 'var(--accent)' : hovered ? 'var(--border-strong)' : 'var(--border-subtle)'}`,
+        borderRadius: 'var(--r-card)',
+        color: selected || hovered ? 'var(--fg-primary)' : 'var(--fg-secondary)',
+        fontFamily: 'inherit', fontSize: 14, fontWeight: selected ? 500 : 400,
+        cursor: 'pointer', textAlign: 'start', width: '100%',
+        transition: 'all 160ms var(--ease-out)',
+      }}>
+      <span style={{ fontSize: 20, lineHeight: 1, flexShrink: 0 }}>{lang.flag}</span>
+      <span style={{ flex: 1 }}>{lang.name}</span>
+      {selected && <IconCheck size={15} style={{ color: 'var(--accent)', flexShrink: 0 }}/>}
+    </button>
+  );
+};
 
-// ── Compact row (more languages list) ───────────────────────────────────────
-const CompactRow = ({ lang, selected, onClick }) => (
-  <button
-    onClick={onClick}
-    style={{
-      display: 'flex', alignItems: 'center', gap: 9,
-      padding: '8px 12px',
-      background: selected ? 'var(--accent-tint)' : 'transparent',
-      border: `1px solid ${selected ? 'var(--accent)' : 'transparent'}`,
-      borderRadius: 6,
-      color: selected ? 'var(--fg-primary)' : 'var(--fg-secondary)',
-      fontFamily: 'inherit', fontSize: 13, fontWeight: selected ? 500 : 400,
-      cursor: 'pointer', textAlign: 'start', width: '100%',
-      transition: 'all 120ms var(--ease-out)',
-    }}
-    onMouseEnter={e => { if (!selected) { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--fg-primary)'; }}}
-    onMouseLeave={e => { if (!selected) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--fg-secondary)'; }}}>
-    <span style={{ fontSize: 14, lineHeight: 1, flexShrink: 0, opacity: 0.8 }}>{lang.flag}</span>
-    <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lang.name}</span>
-    {selected && <IconCheck size={13} style={{ color: 'var(--accent)', flexShrink: 0 }}/>}
-  </button>
-);
+// ── Compact row (more languages list + search results) ───────────────────────
+const CompactRow = ({ lang, selected, onClick }) => {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 9,
+        padding: '8px 12px',
+        background: selected ? 'var(--accent-tint)' : hovered ? 'var(--bg-hover)' : 'transparent',
+        border: `1px solid ${selected ? 'var(--accent)' : 'transparent'}`,
+        borderRadius: 6,
+        color: selected || hovered ? 'var(--fg-primary)' : 'var(--fg-secondary)',
+        fontFamily: 'inherit', fontSize: 13, fontWeight: selected ? 500 : 400,
+        cursor: 'pointer', textAlign: 'start', width: '100%',
+        transition: 'all 120ms var(--ease-out)',
+      }}>
+      <span style={{ fontSize: 14, lineHeight: 1, flexShrink: 0, opacity: 0.8 }}>{lang.flag}</span>
+      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lang.name}</span>
+      {selected && <IconCheck size={13} style={{ color: 'var(--accent)', flexShrink: 0 }}/>}
+    </button>
+  );
+};
 
 export default function LanguageScreen({ onContinue }) {
   const { code, setLang, t } = useLanguage();
