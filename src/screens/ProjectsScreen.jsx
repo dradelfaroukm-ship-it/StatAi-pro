@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavBar } from '../components/Common';
-import { IconPlus, IconMore, IconEdit, IconCopy, IconTrash, IconCheck } from '../components/Icons';
+import { IconPlus, IconMore, IconEdit, IconCopy, IconTrash, IconCheck, IconRefresh } from '../components/Icons';
 import { useLanguage } from '../context/LanguageContext';
 
 const SAMPLE_PROJECTS = [
@@ -16,8 +16,17 @@ const LEVEL_DOT = { basic: 'var(--success)', medium: 'var(--info)', advanced: 'v
 
 const StatusChip = ({ status }) => {
   const { t } = useLanguage();
-  if (status === 'done')    return <span className="chip chip--success"><IconCheck size={12}/> {t.statusDone}</span>;
-  if (status === 'running') return <span className="chip chip--warning"><span style={{ display: 'inline-block', animation: 'spin 1.4s linear infinite' }}>⟳</span> {t.statusRunning}</span>;
+  if (status === 'done') return (
+    <span className="chip chip--success">
+      <IconCheck size={11}/> {t.statusDone}
+    </span>
+  );
+  if (status === 'running') return (
+    <span className="chip chip--warning" style={{ gap: 5 }}>
+      <IconRefresh size={11} style={{ animation: 'spin 1.8s linear infinite' }}/>
+      {t.statusRunning}
+    </span>
+  );
   return <span className="chip chip--neutral">{t.statusDraft}</span>;
 };
 
@@ -26,39 +35,43 @@ const LevelChip = ({ level }) => {
   const label = { basic: t.levelBasic, medium: t.levelMedium, advanced: t.levelAdvanced };
   return (
     <span className={`chip chip--${level}`}>
-      <span style={{ width: 6, height: 6, borderRadius: '50%', background: LEVEL_DOT[level], display: 'inline-block' }}/>
+      <span style={{ width: 5, height: 5, borderRadius: '50%', background: LEVEL_DOT[level], display: 'inline-block', flexShrink: 0 }}/>
       {label[level]}
     </span>
   );
+};
+
+const menuItemStyle = {
+  display: 'flex', alignItems: 'center', gap: 9, padding: '7px 11px',
+  cursor: 'pointer', borderRadius: 4, fontSize: 13,
 };
 
 const ProjectCard = ({ p, onOpen }) => {
   const { t } = useLanguage();
   const [menu, setMenu] = useState(false);
   return (
-    <div className="card card--hover" style={{ padding: 20, position: 'relative', cursor: 'pointer' }} onClick={onOpen}>
+    <div className="card card--hover" style={{ padding: 18, position: 'relative', cursor: 'pointer' }} onClick={onOpen}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-        <h3 className="h3" style={{ margin: 0, flex: 1, fontSize: 18, lineHeight: 1.4 }}>{p.title}</h3>
+        <h3 className="h3" style={{ margin: 0, flex: 1, lineHeight: 1.55, fontWeight: 500 }}>{p.title}</h3>
         <button onClick={e => { e.stopPropagation(); setMenu(m => !m); }} aria-label="menu"
-          style={{ background: 'transparent', border: 'none', color: 'var(--fg-muted)', cursor: 'pointer', padding: 4, display: 'flex', borderRadius: 6 }}>
-          <IconMore/>
+          style={{ background: 'transparent', border: 'none', color: 'var(--fg-muted)', cursor: 'pointer', padding: 4, display: 'flex', borderRadius: 4, flexShrink: 0 }}>
+          <IconMore size={16}/>
         </button>
         {menu && (
           <div style={{
-            position: 'absolute', insetInlineEnd: 12, top: 44, zIndex: 5,
+            position: 'absolute', insetInlineEnd: 10, top: 40, zIndex: 5,
             background: 'var(--bg-card)', border: '1px solid var(--border)',
             borderRadius: 'var(--r-input)', boxShadow: 'var(--shadow-lg)',
-            minWidth: 160, padding: 4,
+            minWidth: 148, padding: 4,
           }} onClick={e => e.stopPropagation()}>
             {[
-              { icon: <IconEdit size={16}/>, label: t.menuEdit },
-              { icon: <IconCopy size={16}/>, label: t.menuCopy },
-              { icon: <IconTrash size={16}/>, label: t.menuDelete, danger: true },
+              { icon: <IconEdit size={14}/>, label: t.menuEdit },
+              { icon: <IconCopy size={14}/>, label: t.menuCopy },
+              { icon: <IconTrash size={14}/>, label: t.menuDelete, danger: true },
             ].map(it => (
               <div key={it.label} style={{
-                display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px',
-                cursor: 'pointer', borderRadius: 6,
-                color: it.danger ? 'var(--error)' : 'var(--fg-secondary)', fontSize: 14,
+                ...menuItemStyle,
+                color: it.danger ? 'var(--error)' : 'var(--fg-secondary)',
               }}
               onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
@@ -69,17 +82,17 @@ const ProjectCard = ({ p, onOpen }) => {
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 6, marginTop: 14, flexWrap: 'wrap' }}>
         <LevelChip level={p.level}/>
         <StatusChip status={p.status}/>
       </div>
 
       <div style={{
-        marginTop: 18, paddingTop: 14, borderTop: '1px solid var(--border-subtle)',
-        display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--fg-muted)',
+        marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--border-subtle)',
+        display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--fg-muted)',
       }}>
         <span>{t.createdAt} <span className="num" style={{ color: 'var(--fg-secondary)' }}>{p.date}</span></span>
-        <span>{t.openProject}</span>
+        <span style={{ color: 'var(--accent)', fontSize: 12 }}>{t.openProject}</span>
       </div>
     </div>
   );
@@ -90,14 +103,14 @@ export default function ProjectsScreen({ onNew, onOpen }) {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
       <NavBar/>
-      <main style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 32px 48px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, gap: 16, flexWrap: 'wrap' }}>
+      <main style={{ maxWidth: 1200, margin: '0 auto', padding: '36px 32px 56px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28, gap: 16, flexWrap: 'wrap' }}>
           <div>
-            <h1 className="h-display" style={{ fontSize: 36, margin: 0 }}>{t.myProjects}</h1>
-            <div style={{ marginTop: 6, color: 'var(--fg-secondary)', fontSize: 16 }}>{t.projectsSubtitle}</div>
+            <h1 className="h-display" style={{ margin: 0 }}>{t.myProjects}</h1>
+            <div style={{ marginTop: 6, color: 'var(--fg-muted)', fontSize: 13 }}>{t.projectsSubtitle}</div>
           </div>
-          <button className="btn btn--primary btn--lg" onClick={onNew}>
-            <IconPlus/> {t.newProject}
+          <button className="btn btn--primary" onClick={onNew} style={{ marginTop: 4 }}>
+            <IconPlus size={15}/> {t.newProject}
           </button>
         </div>
         <div className="grid-3">
