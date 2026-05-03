@@ -1,3 +1,4 @@
+import { useLanguage } from '../context/LanguageContext';
 import { IconCheck } from './Icons';
 
 export const SigmaTile = ({ size = 36 }) => (
@@ -52,32 +53,36 @@ export const Avatar = ({ name = 'سارة', initial }) => {
   );
 };
 
-export const NavBar = ({ user = { name: 'د. سارة المنصوري' } }) => (
-  <nav style={{
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '14px 32px',
-    background: 'rgba(10,15,30,0.85)',
-    backdropFilter: 'blur(12px)',
-    borderBottom: '1px solid var(--border-subtle)',
-    position: 'sticky', top: 0, zIndex: 10,
-  }}>
-    <Logo size={36}/>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <div style={{ textAlign: 'right', direction: 'rtl' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg-primary)' }}>{user.name}</div>
-        <div style={{ fontSize: 12, color: 'var(--fg-muted)' }}>باحث</div>
+export const NavBar = ({ user = { name: 'د. سارة المنصوري' } }) => {
+  const { t } = useLanguage();
+  return (
+    <nav style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '14px 32px',
+      background: 'rgba(10,15,30,0.85)',
+      backdropFilter: 'blur(12px)',
+      borderBottom: '1px solid var(--border-subtle)',
+      position: 'sticky', top: 0, zIndex: 10,
+    }}>
+      <Logo size={36}/>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ textAlign: 'end' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg-primary)' }}>{user.name}</div>
+          <div style={{ fontSize: 12, color: 'var(--fg-muted)' }}>{t.navRole}</div>
+        </div>
+        <Avatar name={user.name} initial="س"/>
       </div>
-      <Avatar name={user.name} initial="س"/>
-    </div>
-  </nav>
-);
+    </nav>
+  );
+};
 
 export const StepIndicator = ({ current = 1, completed = [] }) => {
+  const { t } = useLanguage();
   const steps = [
-    { n: 1, label: 'رفع الملف' },
-    { n: 2, label: 'مراجعة الخطة' },
-    { n: 3, label: 'التحليل' },
-    { n: 4, label: 'النتائج' },
+    { n: 1, label: t.step1 },
+    { n: 2, label: t.step2 },
+    { n: 3, label: t.step3 },
+    { n: 4, label: t.step4 },
   ];
   return (
     <div style={{
@@ -99,9 +104,7 @@ export const StepIndicator = ({ current = 1, completed = [] }) => {
                           : isActive ? 'var(--accent)' : 'transparent',
                 color: isDone ? 'var(--success)'
                      : isActive ? '#fff' : 'var(--fg-muted)',
-                border: `1.5px solid ${
-                  isDone ? 'rgba(102,187,106,0.5)'
-                  : isActive ? 'var(--accent)' : 'var(--border)'}`,
+                border: `1.5px solid ${isDone ? 'rgba(102,187,106,0.5)' : isActive ? 'var(--accent)' : 'var(--border)'}`,
                 transition: 'all 200ms var(--ease-out)',
               }}>
                 {isDone ? <IconCheck size={16}/> : <span className="num">{s.n}</span>}
@@ -115,8 +118,7 @@ export const StepIndicator = ({ current = 1, completed = [] }) => {
             {i < steps.length - 1 && (
               <div style={{
                 width: 56, height: 2, margin: '0 16px',
-                background: completed.includes(s.n)
-                  ? 'rgba(102,187,106,0.5)' : 'var(--border)',
+                background: completed.includes(s.n) ? 'rgba(102,187,106,0.5)' : 'var(--border)',
                 transition: 'background 320ms var(--ease-out)',
               }}/>
             )}
