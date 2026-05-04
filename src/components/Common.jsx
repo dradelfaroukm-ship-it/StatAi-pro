@@ -73,34 +73,27 @@ export const NavBar = ({ onSignOut }) => {
       backdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--border-subtle)',
       position: 'sticky', top: 0, zIndex: 10,
-      direction: 'ltr',
     }}>
+      <Logo size={28}/>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <Avatar name={email} initial={initial}/>
+        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)', direction: 'ltr' }}>{email}</span>
         {session && (
           <button type="button" onClick={handleSignOut} style={{
             background: '#dc2626',
             border: 'none',
             color: '#fff',
             borderRadius: 8,
-            padding: '8px 18px',
-            fontSize: 14,
+            padding: '7px 16px',
+            fontSize: 13,
             fontWeight: 700,
             cursor: 'pointer',
             fontFamily: 'inherit',
-            letterSpacing: '0.01em',
             boxShadow: '0 2px 8px rgba(220,38,38,0.35)',
           }}>
             تسجيل الخروج
           </button>
         )}
-      </div>
-      <Logo size={28}/>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ textAlign: 'end' }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)', direction: 'ltr' }}>{email}</div>
-          <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginTop: 1 }}>{t.navRole}</div>
-        </div>
-        <Avatar name={email} initial={initial}/>
       </div>
     </nav>
   );
