@@ -4,6 +4,42 @@ import { IconEye, IconEyeOff, GoogleIcon } from '../components/Icons';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
 
+// Human-readable messages for common Supabase error codes
+const friendlyError = (err) => {
+  const msg = err?.message ?? '';
+  const status = err?.status;
+  console.error('[StatAI] Auth error:', { message: msg, status, full: err });
+
+  if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    return 'Configuration error: Supabase environment variables are not set. Check Vercel → Project → Settings → Environment Variables.';
+  }
+  if (msg.includes('Email not confirmed')) {
+    return 'Please confirm your email address first — check your inbox for a confirmation link.';
+  }
+  if (msg.includes('Invalid login credentials') || msg.includes('invalid_credentials')) {
+    return 'Incorrect email or password.';
+  }
+  if (msg.includes('User already registered')) {
+    return 'An account with this email already exists. Try signing in instead.';
+  }
+  if (msg.includes('Password should be')) {
+    return 'Password must be at least 6 characters.';
+  }
+  if (msg.includes('Unable to validate email address') || msg.includes('invalid email')) {
+    return 'Please enter a valid email address.';
+  }
+  if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch')) {
+    return 'Network error — check your connection or try again shortly.';
+  }
+  if (status === 400) {
+    return `Request error (400): ${msg}`;
+  }
+  if (status === 422) {
+    return `Validation error (422): ${msg}`;
+  }
+  return msg || 'Something went wrong. Check the browser console for details.';
+};
+
 export default function AuthScreen() {
   const { t } = useLanguage();
   const [tab, setTab]         = useState('login');
@@ -23,19 +59,29 @@ export default function AuthScreen() {
   const handleSubmit = async () => {
     reset();
     if (!email || !pwd) { setError('Please enter your email and password.'); return; }
+    if (pwd.length < 6)  { setError('Password must be at least 6 characters.'); return; }
+
     setLoading(true);
+    console.log('[StatAI] Auth attempt:', { action: isLogin ? 'signIn' : 'signUp', email });
+
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password: pwd });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password: pwd });
+        console.log('[StatAI] signIn response:', { data, error });
         if (error) throw error;
-        // onAuthStateChange in AuthContext handles the rest
+        // onAuthStateChange in AuthContext navigates away
       } else {
-        const { error } = await supabase.auth.signUp({ email, password: pwd });
+        const { data, error } = await supabase.auth.signUp({ email, password: pwd });
+        console.log('[StatAI] signUp response:', { data, error });
         if (error) throw error;
-        setInfo('Account created! Check your email to confirm before signing in.');
+        // If email confirmation is required, session will be null
+        if (!data.session) {
+          setInfo('Account created! Check your email for a confirmation link, then sign in.');
+        }
+        // If email confirmation is disabled in Supabase, session exists → AuthContext navigates
       }
     } catch (err) {
-      setError(err.message ?? 'Something went wrong.');
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }
@@ -43,22 +89,23 @@ export default function AuthScreen() {
 
   const handleGoogle = async () => {
     reset();
+    console.log('[StatAI] Google OAuth attempt, redirectTo:', window.location.origin);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin },
     });
-    if (error) setError(error.message);
+    if (error) setError(friendlyError(error));
   };
 
   const handleForgotPassword = async () => {
     reset();
     if (!email) { setError('Enter your email address first, then click Forgot password.'); return; }
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/#reset-password`,
-    });
+    const redirectTo = `${window.location.origin}/`;
+    console.log('[StatAI] Password reset, redirectTo:', redirectTo);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
     setLoading(false);
-    if (error) setError(error.message);
+    if (error) setError(friendlyError(error));
     else setInfo('Password reset email sent. Check your inbox.');
   };
 
@@ -151,6 +198,7 @@ export default function AuthScreen() {
             marginBottom: 14, padding: '9px 12px',
             background: 'var(--error-tint)', border: '1px solid rgba(239,68,68,0.28)',
             borderRadius: 'var(--r-input)', fontSize: 13, color: 'var(--error)', lineHeight: 1.5,
+            direction: 'ltr', textAlign: 'left',
           }}>{error}</div>
         )}
         {info && (
@@ -158,6 +206,7 @@ export default function AuthScreen() {
             marginBottom: 14, padding: '9px 12px',
             background: 'var(--success-tint)', border: '1px solid rgba(16,185,129,0.28)',
             borderRadius: 'var(--r-input)', fontSize: 13, color: 'var(--success)', lineHeight: 1.5,
+            direction: 'ltr', textAlign: 'left',
           }}>{info}</div>
         )}
 
