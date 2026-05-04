@@ -73,7 +73,27 @@ export const NavBar = ({ onSignOut }) => {
       backdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--border-subtle)',
       position: 'sticky', top: 0, zIndex: 10,
+      direction: 'ltr',
     }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {session && (
+          <button type="button" onClick={handleSignOut} style={{
+            background: '#dc2626',
+            border: 'none',
+            color: '#fff',
+            borderRadius: 8,
+            padding: '8px 18px',
+            fontSize: 14,
+            fontWeight: 700,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            letterSpacing: '0.01em',
+            boxShadow: '0 2px 8px rgba(220,38,38,0.35)',
+          }}>
+            تسجيل الخروج
+          </button>
+        )}
+      </div>
       <Logo size={28}/>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{ textAlign: 'end' }}>
@@ -81,15 +101,6 @@ export const NavBar = ({ onSignOut }) => {
           <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginTop: 1 }}>{t.navRole}</div>
         </div>
         <Avatar name={email} initial={initial}/>
-        <button type="button" onClick={handleSignOut} style={{
-          background: 'transparent', border: '1px solid var(--border)',
-          color: 'var(--fg-muted)', borderRadius: 'var(--r-button)',
-          padding: '5px 10px', fontSize: 12, cursor: 'pointer',
-          fontFamily: 'inherit', transition: 'all 160ms var(--ease-out)',
-        }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--fg-primary)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--fg-muted)'; }}
-        >{t.signOut ?? 'Sign out'}</button>
       </div>
     </nav>
   );
