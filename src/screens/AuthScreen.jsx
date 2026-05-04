@@ -45,14 +45,20 @@ export default function AuthScreen() {
         // onAuthStateChange in AuthContext navigates away
       } else {
         console.log('[StatAI] Calling supabase.auth.signUp with email:', email);
-        const { data, error } = await supabase.auth.signUp({ email, password: pwd });
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password: pwd,
+          options: { emailRedirectTo: 'https://stat-ai-pro.vercel.app' },
+        });
         console.log('[StatAI] signUp response:', JSON.stringify({ data, error }, null, 2));
         if (error) throw error;
-        // If email confirmation is required, session will be null
-        if (!data.session) {
+        // Auto sign-in immediately after signup regardless of email confirmation setting
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password: pwd });
+        if (signInError) {
+          // Signup succeeded but auto sign-in failed (e.g. email confirmation enforced server-side)
           setInfo('Account created! Check your email for a confirmation link, then sign in.');
         }
-        // If email confirmation is disabled in Supabase, session exists → AuthContext navigates
+        // If sign-in succeeds, onAuthStateChange in AuthContext navigates away automatically
       }
     } catch (err) {
       setError(rawError(err));
@@ -63,10 +69,9 @@ export default function AuthScreen() {
 
   const handleGoogle = async () => {
     reset();
-    console.log('[StatAI] Google OAuth attempt, redirectTo:', window.location.origin);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: 'https://stat-ai-pro.vercel.app' },
     });
     if (error) setError(rawError(error));
   };
@@ -75,9 +80,9 @@ export default function AuthScreen() {
     reset();
     if (!email) { setError('Enter your email address first, then click Forgot password.'); return; }
     setLoading(true);
-    const redirectTo = `${window.location.origin}/`;
-    console.log('[StatAI] Password reset, redirectTo:', redirectTo);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://stat-ai-pro.vercel.app',
+    });
     setLoading(false);
     if (error) setError(rawError(error));
     else setInfo('Password reset email sent. Check your inbox.');
