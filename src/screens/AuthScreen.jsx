@@ -4,40 +4,13 @@ import { IconEye, IconEyeOff, GoogleIcon } from '../components/Icons';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
 
-// Human-readable messages for common Supabase error codes
-const friendlyError = (err) => {
-  const msg = err?.message ?? '';
-  const status = err?.status;
-  console.error('[StatAI] Auth error:', { message: msg, status, full: err });
-
-  if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-    return 'Configuration error: Supabase environment variables are not set. Check Vercel → Project → Settings → Environment Variables.';
-  }
-  if (msg.includes('Email not confirmed')) {
-    return 'Please confirm your email address first — check your inbox for a confirmation link.';
-  }
-  if (msg.includes('Invalid login credentials') || msg.includes('invalid_credentials')) {
-    return 'Incorrect email or password.';
-  }
-  if (msg.includes('User already registered')) {
-    return 'An account with this email already exists. Try signing in instead.';
-  }
-  if (msg.includes('Password should be')) {
-    return 'Password must be at least 6 characters.';
-  }
-  if (msg.includes('Unable to validate email address') || msg.includes('invalid email')) {
-    return 'Please enter a valid email address.';
-  }
-  if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch')) {
-    return 'Network error — check your connection or try again shortly.';
-  }
-  if (status === 400) {
-    return `Request error (400): ${msg}`;
-  }
-  if (status === 422) {
-    return `Validation error (422): ${msg}`;
-  }
-  return msg || 'Something went wrong. Check the browser console for details.';
+// Returns the raw error string so we can see exactly what Supabase says
+const rawError = (err) => {
+  console.error('[StatAI] Auth error (full object):', err);
+  const msg  = err?.message ?? '';
+  const code = err?.code ?? '';
+  const status = err?.status ?? '';
+  return `${msg}${code ? ` [${code}]` : ''}${status ? ` (HTTP ${status})` : ''}` || JSON.stringify(err);
 };
 
 export default function AuthScreen() {
@@ -71,8 +44,9 @@ export default function AuthScreen() {
         if (error) throw error;
         // onAuthStateChange in AuthContext navigates away
       } else {
+        console.log('[StatAI] Calling supabase.auth.signUp with email:', email);
         const { data, error } = await supabase.auth.signUp({ email, password: pwd });
-        console.log('[StatAI] signUp response:', { data, error });
+        console.log('[StatAI] signUp response:', JSON.stringify({ data, error }, null, 2));
         if (error) throw error;
         // If email confirmation is required, session will be null
         if (!data.session) {
@@ -81,7 +55,7 @@ export default function AuthScreen() {
         // If email confirmation is disabled in Supabase, session exists → AuthContext navigates
       }
     } catch (err) {
-      setError(friendlyError(err));
+      setError(rawError(err));
     } finally {
       setLoading(false);
     }
@@ -94,7 +68,7 @@ export default function AuthScreen() {
       provider: 'google',
       options: { redirectTo: window.location.origin },
     });
-    if (error) setError(friendlyError(error));
+    if (error) setError(rawError(error));
   };
 
   const handleForgotPassword = async () => {
@@ -105,7 +79,7 @@ export default function AuthScreen() {
     console.log('[StatAI] Password reset, redirectTo:', redirectTo);
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
     setLoading(false);
-    if (error) setError(friendlyError(error));
+    if (error) setError(rawError(error));
     else setInfo('Password reset email sent. Check your inbox.');
   };
 
@@ -192,13 +166,24 @@ export default function AuthScreen() {
           </div>
         )}
 
+        {/* Debug strip — always visible so we can see the Supabase URL in use */}
+        <div style={{
+          marginBottom: 10, padding: '6px 10px',
+          background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--r-input)', fontSize: 11, color: 'var(--fg-muted)',
+          direction: 'ltr', textAlign: 'left', fontFamily: 'monospace', wordBreak: 'break-all',
+        }}>
+          url: {import.meta.env.VITE_SUPABASE_URL || 'MISSING → using fallback'}<br/>
+          key: {import.meta.env.VITE_SUPABASE_ANON_KEY ? `${import.meta.env.VITE_SUPABASE_ANON_KEY.slice(0, 20)}…` : 'MISSING'}
+        </div>
+
         {/* Error / info banners */}
         {error && (
           <div style={{
             marginBottom: 14, padding: '9px 12px',
             background: 'var(--error-tint)', border: '1px solid rgba(239,68,68,0.28)',
             borderRadius: 'var(--r-input)', fontSize: 13, color: 'var(--error)', lineHeight: 1.5,
-            direction: 'ltr', textAlign: 'left',
+            direction: 'ltr', textAlign: 'left', fontFamily: 'monospace', wordBreak: 'break-all',
           }}>{error}</div>
         )}
         {info && (
