@@ -98,12 +98,12 @@ const ProjectCard = ({ p, onOpen }) => {
   );
 };
 
-export default function ProjectsScreen({ onNew, onOpen }) {
+export default function ProjectsScreen({ onNew, onOpen, onSignOut }) {
   const { t } = useLanguage();
   const projects = PROJECT_META.map(p => ({ ...p, title: t[p.key] }));
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      <NavBar/>
+      <NavBar onSignOut={onSignOut}/>
       <main style={{ maxWidth: 1200, margin: '0 auto', padding: '36px 32px 56px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28, gap: 16, flexWrap: 'wrap' }}>
           <div>

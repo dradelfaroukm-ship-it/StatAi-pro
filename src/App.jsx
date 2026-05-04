@@ -38,6 +38,8 @@ export default function App() {
 
   const go = (key) => () => setScreen(key);
 
+  const handleSignOut = () => setScreen('language');
+
   const SCREEN_LABELS = {
     language: t.screenLang,
     auth:     t.screenAuth,
@@ -90,11 +92,11 @@ export default function App() {
         <LanguageScreen onContinue={go(session ? 'projects' : 'auth')}/>
       )}
       {screen === 'auth'     && <AuthScreen/>}
-      {screen === 'projects' && <ProjectsScreen onNew={go('upload')} onOpen={go('plan')}/>}
+      {screen === 'projects' && <ProjectsScreen onNew={go('upload')} onOpen={go('plan')} onSignOut={handleSignOut}/>}
       {/* key={code} remounts so translated initial state re-inits on language change */}
-      {screen === 'upload'   && <UploadScreen   key={code} onNext={go('plan')}    onBack={go('projects')}/>}
-      {screen === 'plan'     && <PlanScreen     key={code} onNext={go('results')} onBack={go('upload')}/>}
-      {screen === 'results'  && <ResultsScreen  key={code} onBack={go('plan')}/>}
+      {screen === 'upload'   && <UploadScreen   key={code} onNext={go('plan')}    onBack={go('projects')} onSignOut={handleSignOut}/>}
+      {screen === 'plan'     && <PlanScreen     key={code} onNext={go('results')} onBack={go('upload')}   onSignOut={handleSignOut}/>}
+      {screen === 'results'  && <ResultsScreen  key={code} onBack={go('plan')}                            onSignOut={handleSignOut}/>}
     </div>
   );
 }

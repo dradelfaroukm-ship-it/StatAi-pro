@@ -91,7 +91,7 @@ const ResultsTable = ({ headers, rows }) => (
 
 const Divider = () => <div style={{ height:1, background:'var(--border-subtle)', margin:'32px 0' }}/>;
 
-export default function ResultsScreen({ onBack }) {
+export default function ResultsScreen({ onBack, onSignOut }) {
   const { t } = useLanguage();
   const [approved, setApproved] = useState(false);
 
@@ -116,7 +116,7 @@ export default function ResultsScreen({ onBack }) {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      <NavBar/>
+      <NavBar onSignOut={onSignOut}/>
       <main style={{ maxWidth: 1080, margin: '0 auto', padding: '24px 24px 140px' }}>
         <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:16, flexWrap:'wrap' }}>
           <div>

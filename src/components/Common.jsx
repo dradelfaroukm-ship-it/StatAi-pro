@@ -54,11 +54,16 @@ export const Avatar = ({ name = 'سارة', initial }) => {
   );
 };
 
-export const NavBar = () => {
+export const NavBar = ({ onSignOut }) => {
   const { t } = useLanguage();
   const { session, signOut } = useAuth();
   const email = session?.user?.email ?? '';
   const initial = email[0]?.toUpperCase() ?? '?';
+
+  const handleSignOut = async () => {
+    await signOut();
+    onSignOut?.();
+  };
 
   return (
     <nav style={{
@@ -76,7 +81,7 @@ export const NavBar = () => {
           <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginTop: 1 }}>{t.navRole}</div>
         </div>
         <Avatar name={email} initial={initial}/>
-        <button type="button" onClick={signOut} style={{
+        <button type="button" onClick={handleSignOut} style={{
           background: 'transparent', border: '1px solid var(--border)',
           color: 'var(--fg-muted)', borderRadius: 'var(--r-button)',
           padding: '5px 10px', fontSize: 12, cursor: 'pointer',

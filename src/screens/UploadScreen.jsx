@@ -5,7 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 
 const FORMATS = ['CSV', 'Excel', 'SPSS', 'JSON'];
 
-export default function UploadScreen({ onNext, onBack }) {
+export default function UploadScreen({ onNext, onBack, onSignOut }) {
   const { t } = useLanguage();
   const [uploaded, setUploaded] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -19,7 +19,7 @@ export default function UploadScreen({ onNext, onBack }) {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      <NavBar/>
+      <NavBar onSignOut={onSignOut}/>
       <main style={{ maxWidth: 860, margin: '0 auto', padding: '24px 24px 56px' }}>
         <button onClick={onBack} style={{
           background: 'transparent', border: 'none', color: 'var(--fg-muted)',

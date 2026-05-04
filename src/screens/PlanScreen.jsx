@@ -68,7 +68,7 @@ const MethodCard = ({ m, idx }) => {
 const thStyle = { textAlign: 'start', padding: '11px 16px', fontSize: 12, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' };
 const tdStyle = { textAlign: 'start', padding: '10px 16px', fontSize: 13, color: 'var(--fg-primary)', borderTop: '1px solid var(--border-subtle)' };
 
-export default function PlanScreen({ onNext, onBack }) {
+export default function PlanScreen({ onNext, onBack, onSignOut }) {
   const { t } = useLanguage();
 
   const [variables, setVariables] = useState(() => [
@@ -92,7 +92,7 @@ export default function PlanScreen({ onNext, onBack }) {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      <NavBar/>
+      <NavBar onSignOut={onSignOut}/>
       <main style={{ maxWidth: 1080, margin: '0 auto', padding: '28px 24px 140px' }}>
         <h1 className="h1">{t.planTitle}</h1>
         <div style={{ color: 'var(--fg-muted)', marginTop: 4, fontSize: 13 }}>{t.planSubtitle}</div>
