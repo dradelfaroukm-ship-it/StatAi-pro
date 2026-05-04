@@ -17,27 +17,19 @@ export default function App() {
 
   const [screen, setScreen] = useState(() => {
     const hash = window.location.hash.replace('#', '');
-    // OAuth callback — Supabase puts #access_token= (implicit) or ?code= (PKCE) in the URL.
-    // Treat these as 'auth' so the route-protection effect can redirect to 'projects' once the
-    // session is confirmed, instead of defaulting to 'language'.
-    if (hash.startsWith('access_token=') || window.location.search.includes('code=')) {
-      return 'auth';
-    }
     return SCREEN_KEYS.includes(hash) ? hash : 'language';
   });
 
   // Route protection: runs whenever session or screen changes
   useEffect(() => {
     if (loading) return;
+    // No session on a protected screen → send to auth
     if (!session && PROTECTED.has(screen)) {
       setScreen('auth');
     }
-    // After OAuth or email sign-in: go to projects
-    if (session && screen === 'auth') {
-      setScreen('projects');
-    }
-    // Returning authenticated user who already chose a language: skip the language screen
-    if (session && screen === 'language' && localStorage.getItem('statai-lang')) {
+    // Session exists but on a non-app screen (language, auth, or any OAuth callback URL
+    // that didn't match a screen key) → go straight to projects
+    if (session && !PROTECTED.has(screen)) {
       setScreen('projects');
     }
   }, [session, loading, screen]);
