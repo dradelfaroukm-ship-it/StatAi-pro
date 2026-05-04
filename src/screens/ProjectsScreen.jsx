@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { NavBar } from '../components/Common';
+import { supabase } from '../lib/supabase';
 import { IconPlus, IconMore, IconEdit, IconCopy, IconTrash, IconCheck, IconRefresh } from '../components/Icons';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -103,6 +104,7 @@ export default function ProjectsScreen({ onNew, onOpen, onSignOut }) {
   const projects = PROJECT_META.map(p => ({ ...p, title: t[p.key] }));
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+      <button type="button" onClick={async () => { await supabase.auth.signOut(); onSignOut?.(); }} style={{ position: 'fixed', top: 12, right: 12, zIndex: 9999, background: '#dc2626', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 16px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>خروج</button>
       <NavBar onSignOut={onSignOut}/>
       <main style={{ maxWidth: 1200, margin: '0 auto', padding: '36px 32px 56px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28, gap: 16, flexWrap: 'wrap' }}>
