@@ -67,26 +67,26 @@ export const NavBar = ({ onSignOut }) => {
 
   return (
     <nav style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center',
       padding: '12px 32px',
       background: 'rgba(10,15,30,0.92)',
       backdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--border-subtle)',
       position: 'sticky', top: 0, zIndex: 10,
     }}>
-      <Logo size={28}/>
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <Avatar name={email} initial={initial}/>
         <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)', direction: 'ltr', whiteSpace: 'nowrap' }}>{email}</span>
+      </div>
+      <Logo size={28}/>
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button type="button" onClick={handleSignOut} style={{
-          display: 'inline-flex', alignItems: 'center',
           background: '#dc2626', border: 'none', color: '#fff',
           borderRadius: 6, padding: '6px 14px',
           fontSize: 13, fontWeight: 700, cursor: 'pointer',
           fontFamily: 'inherit', whiteSpace: 'nowrap',
-          flexShrink: 0,
         }}>
-          خروج
+          تسجيل خروج
         </button>
       </div>
     </nav>
