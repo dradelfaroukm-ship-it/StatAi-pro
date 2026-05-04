@@ -2,6 +2,7 @@
 const nl = {
   // Nav / global
   navRole: 'Onderzoeker',
+  signOut: 'Uitloggen',
 
   // App screen labels (dev switcher)
   screenLang: 'Taal',

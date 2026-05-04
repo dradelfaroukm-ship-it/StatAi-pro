@@ -93,7 +93,7 @@ export const NavBar = ({ onSignOut }) => {
           onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
           onMouseLeave={e => { e.currentTarget.style.opacity = '0.9'; }}
         >
-          تسجيل خروج
+          {t.signOut}
         </button>
       </div>
     </nav>

@@ -2,6 +2,7 @@
 const ru = {
   // Nav / global
   navRole: 'Исследователь',
+  signOut: 'Выйти',
 
   // App screen labels (dev switcher)
   screenLang: 'Язык',
