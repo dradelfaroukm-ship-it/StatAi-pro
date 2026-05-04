@@ -60,7 +60,7 @@ export default function App() {
     <div dir={dir} style={{ fontFamily: font }}>
       {/* Dev screen switcher */}
       <div style={{
-        position: 'fixed', top: 12, left: 12,
+        position: 'fixed', top: 64, left: 12,
         zIndex: 100,
         background: 'rgba(10,15,30,0.95)', backdropFilter: 'blur(12px)',
         border: '1px solid var(--border)',

@@ -59,41 +59,34 @@ export const NavBar = ({ onSignOut }) => {
   const { signOut } = useAuth();
 
   return (
-    <div style={{
-      position: 'sticky', top: 0, zIndex: 10,
-      height: 56,
-      background: 'rgba(10,15,30,0.92)',
-      backdropFilter: 'blur(12px)',
-      borderBottom: '1px solid var(--border-subtle)',
-    }}>
-      {/* Logo: absolutely centered, direction-agnostic */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        pointerEvents: 'none',
-      }}>
-        <div style={{ pointerEvents: 'auto' }}><Logo size={28}/></div>
-      </div>
+    <>
+      {/* Sign out: fixed top-left — position:fixed with physical `left` is
+          never affected by dir="rtl", so it shows in every language */}
+      <button
+        type="button"
+        onClick={async () => { await signOut(); onSignOut?.(); }}
+        style={{
+          position: 'fixed', top: 12, left: 12, zIndex: 200,
+          background: 'var(--accent)', border: 'none', color: '#fff',
+          borderRadius: 6, padding: '7px 16px',
+          fontSize: 13, fontWeight: 600, cursor: 'pointer',
+          fontFamily: 'inherit', whiteSpace: 'nowrap',
+        }}
+      >
+        {t.signOut}
+      </button>
 
-      {/* Sign out: physical right — CSS `right` is never flipped by RTL */}
       <div style={{
-        position: 'absolute', right: 24, top: 0, bottom: 0,
-        display: 'flex', alignItems: 'center',
+        position: 'sticky', top: 0, zIndex: 10,
+        height: 56,
+        background: 'rgba(10,15,30,0.92)',
+        backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid var(--border-subtle)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <button
-          type="button"
-          onClick={async () => { await signOut(); onSignOut?.(); }}
-          style={{
-            background: 'var(--accent)', border: 'none', color: '#fff',
-            borderRadius: 6, padding: '7px 16px',
-            fontSize: 13, fontWeight: 600, cursor: 'pointer',
-            fontFamily: 'inherit', whiteSpace: 'nowrap',
-          }}
-        >
-          {t.signOut}
-        </button>
+        <Logo size={28}/>
       </div>
-    </div>
+    </>
   );
 };
 
