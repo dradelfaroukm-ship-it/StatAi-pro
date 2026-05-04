@@ -75,25 +75,19 @@ export const NavBar = ({ onSignOut }) => {
       position: 'sticky', top: 0, zIndex: 10,
     }}>
       <Logo size={28}/>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
         <Avatar name={email} initial={initial}/>
-        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)', direction: 'ltr' }}>{email}</span>
-        {session && (
-          <button type="button" onClick={handleSignOut} style={{
-            background: '#dc2626',
-            border: 'none',
-            color: '#fff',
-            borderRadius: 8,
-            padding: '7px 16px',
-            fontSize: 13,
-            fontWeight: 700,
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-            boxShadow: '0 2px 8px rgba(220,38,38,0.35)',
-          }}>
-            تسجيل الخروج
-          </button>
-        )}
+        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)', direction: 'ltr', whiteSpace: 'nowrap' }}>{email}</span>
+        <button type="button" onClick={handleSignOut} style={{
+          display: 'inline-flex', alignItems: 'center',
+          background: '#dc2626', border: 'none', color: '#fff',
+          borderRadius: 6, padding: '6px 14px',
+          fontSize: 13, fontWeight: 700, cursor: 'pointer',
+          fontFamily: 'inherit', whiteSpace: 'nowrap',
+          flexShrink: 0,
+        }}>
+          خروج
+        </button>
       </div>
     </nav>
   );
