@@ -94,7 +94,7 @@ export const NavBar = ({ onSignOut }) => {
           onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
           onMouseLeave={e => { e.currentTarget.style.opacity = '0.9'; }}
         >
-          <span style={{ direction: 'rtl', unicodeBidi: 'embed' }}>{t.signOut}</span>
+          {t.signOut}
         </button>
       </div>
     </nav>
