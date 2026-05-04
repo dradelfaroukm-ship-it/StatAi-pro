@@ -73,6 +73,7 @@ export const NavBar = ({ onSignOut }) => {
       backdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--border-subtle)',
       position: 'sticky', top: 0, zIndex: 10,
+      direction: 'ltr',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <Avatar name={email} initial={initial}/>
@@ -93,7 +94,7 @@ export const NavBar = ({ onSignOut }) => {
           onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
           onMouseLeave={e => { e.currentTarget.style.opacity = '0.9'; }}
         >
-          {t.signOut}
+          <span style={{ direction: 'rtl', unicodeBidi: 'embed' }}>{t.signOut}</span>
         </button>
       </div>
     </nav>
