@@ -166,17 +166,6 @@ export default function AuthScreen() {
           </div>
         )}
 
-        {/* Debug strip — always visible so we can see the Supabase URL in use */}
-        <div style={{
-          marginBottom: 10, padding: '6px 10px',
-          background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border-subtle)',
-          borderRadius: 'var(--r-input)', fontSize: 11, color: 'var(--fg-muted)',
-          direction: 'ltr', textAlign: 'left', fontFamily: 'monospace', wordBreak: 'break-all',
-        }}>
-          url: {import.meta.env.VITE_SUPABASE_URL || 'MISSING → using fallback'}<br/>
-          key: {import.meta.env.VITE_SUPABASE_ANON_KEY ? `${import.meta.env.VITE_SUPABASE_ANON_KEY.slice(0, 20)}…` : 'MISSING'}
-        </div>
-
         {/* Error / info banners */}
         {error && (
           <div style={{
