@@ -8,9 +8,21 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(undefined);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
+    const hasOAuthToken = window.location.hash.includes('access_token=');
+
+    const init = () => {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSession(session);
+      });
+    };
+
+    // Give Supabase time to parse the access_token from the URL hash before
+    // calling getSession, otherwise it returns null and we loop back to auth.
+    if (hasOAuthToken) {
+      setTimeout(init, 2000);
+    } else {
+      init();
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
