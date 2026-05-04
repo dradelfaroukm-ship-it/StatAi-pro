@@ -55,19 +55,33 @@ export const Avatar = ({ name = 'سارة', initial }) => {
 };
 
 export const NavBar = ({ onSignOut }) => {
-  const { code } = useLanguage();
+  const { t } = useLanguage();
   const { signOut } = useAuth();
 
-  const labels = { ar:'تسجيل الخروج', en:'Sign out', fr:'Se déconnecter', es:'Cerrar sesión', de:'Abmelden', pt:'Sair', 'zh-CN':'退出登录', hi:'साइन आउट', tr:'Çıkış yap', fa:'خروج از حساب', nl:'Uitloggen', ru:'Выйти' };
-
   return (
-    <div style={{ position: 'sticky', top: 0, zIndex: 10, height: 56, background: 'rgba(10,15,30,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--border-subtle)' }}>
-      <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)' }}>
-        <Logo size={28}/>
+    <div style={{
+      position: 'sticky', top: 0, zIndex: 10,
+      display: 'flex', flexDirection: 'row', direction: 'ltr',
+      alignItems: 'center', height: 56,
+      background: 'rgba(10,15,30,0.92)',
+      backdropFilter: 'blur(12px)',
+      borderBottom: '1px solid var(--border-subtle)',
+    }}>
+      <div style={{ flex: 1 }}/>
+      <Logo size={28}/>
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', paddingRight: 24 }}>
+        <button
+          type="button"
+          onClick={async () => { await signOut(); onSignOut?.(); }}
+          style={{
+            background: 'var(--accent)', border: 'none', color: '#fff',
+            borderRadius: 6, padding: '7px 16px',
+            fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+          }}
+        >
+          {t.signOut}
+        </button>
       </div>
-      <button type="button" onClick={async () => { await signOut(); onSignOut?.(); }} style={{ position: 'absolute', right: 24, top: '50%', transform: 'translateY(-50%)', background: 'var(--accent)', border: 'none', color: '#fff', borderRadius: 6, padding: '7px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-        {labels[code] || 'Sign out'}
-      </button>
     </div>
   );
 };

@@ -4,7 +4,7 @@
 const ar = {
   // Nav / global
   navRole: 'باحث',
-  signOut: 'تسجيل الخروج',
+  signOut: 'تسجيل خروج',
   // Language screen
   chooseLanguage: 'اختر لغتك',
   chooseLanguageSub: 'Choose your language',
@@ -178,7 +178,7 @@ const ar = {
 // ─────────────────────────────────────────────────────────────────────────────
 const en = {
   navRole: 'Researcher',
-  signOut: 'Sign out',
+  signOut: 'Sign Out',
   chooseLanguage: 'Choose your language',
   chooseLanguageSub: 'اختر لغتك',
   searchLanguage: 'Search language',
@@ -333,7 +333,7 @@ const en = {
 // ─────────────────────────────────────────────────────────────────────────────
 const fr = {
   navRole: 'Chercheur',
-  signOut: 'Se déconnecter',
+  signOut: 'Déconnexion',
   chooseLanguage: 'Choisissez votre langue',
   chooseLanguageSub: 'Choose your language',
   searchLanguage: 'Rechercher une langue',
@@ -789,7 +789,7 @@ const pt = {
 // ─────────────────────────────────────────────────────────────────────────────
 const zhCN = {
   navRole: '研究员',
-  signOut: '退出登录',
+  signOut: '退出',
   chooseLanguage: '选择您的语言',
   chooseLanguageSub: 'Choose your language',
   searchLanguage: '搜索语言',
@@ -1017,7 +1017,7 @@ const hi = {
 // ─────────────────────────────────────────────────────────────────────────────
 const tr = {
   navRole: 'Araştırmacı',
-  signOut: 'Çıkış yap',
+  signOut: 'Çıkış Yap',
   chooseLanguage: 'Dilinizi seçin',
   chooseLanguageSub: 'Choose your language',
   searchLanguage: 'Dil ara',
@@ -1131,7 +1131,7 @@ const tr = {
 // ─────────────────────────────────────────────────────────────────────────────
 const fa = {
   navRole: 'پژوهشگر',
-  signOut: 'خروج از حساب',
+  signOut: 'خروج',
   chooseLanguage: 'زبان خود را انتخاب کنید',
   chooseLanguageSub: 'Choose your language',
   searchLanguage: 'جستجوی زبان',
