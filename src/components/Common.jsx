@@ -66,6 +66,7 @@ export const NavBar = ({ onSignOut }) => {
   const email = session?.user?.email ?? '';
   const initial = email[0]?.toUpperCase() ?? '?';
   const signOutLabel = SIGN_OUT_LABELS[code] || 'Sign out';
+  console.log('[NavBar] lang code:', code, '→ signOut label:', signOutLabel);
 
   const handleSignOut = async () => {
     await signOut();
@@ -74,35 +75,36 @@ export const NavBar = ({ onSignOut }) => {
 
   return (
     <nav style={{
-      display: 'flex', alignItems: 'center',
       position: 'sticky', top: 0, zIndex: 10,
-      padding: '12px 32px',
+      height: 56,
       background: 'rgba(10,15,30,0.92)',
       backdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--border-subtle)',
     }}>
-      {/* Email + avatar — always on the physical left */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, zIndex: 1 }}>
+      {/* Email + avatar — pinned to physical left */}
+      <div style={{
+        position: 'absolute', left: 32, top: '50%', transform: 'translateY(-50%)',
+        display: 'flex', alignItems: 'center', gap: 10,
+      }}>
         <Avatar name={email} initial={initial}/>
         <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)', direction: 'ltr', whiteSpace: 'nowrap' }}>{email}</span>
       </div>
 
-      {/* Logo — always physically centered */}
-      <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>
+      {/* Logo — pinned to physical center */}
+      <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)' }}>
         <Logo size={28}/>
       </div>
 
-      {/* Sign out — marginLeft:auto pushes to physical right regardless of RTL */}
-      <div style={{ marginLeft: 'auto', zIndex: 1 }}>
-        <button type="button" onClick={handleSignOut} style={{
-          background: 'var(--accent)', border: 'none', color: '#fff',
-          borderRadius: 6, padding: '7px 16px',
-          fontSize: 13, fontWeight: 600, cursor: 'pointer',
-          fontFamily: 'inherit', whiteSpace: 'nowrap',
-        }}>
-          {signOutLabel}
-        </button>
-      </div>
+      {/* Sign out — pinned to physical right, always visible */}
+      <button type="button" onClick={handleSignOut} style={{
+        position: 'absolute', right: 32, top: '50%', transform: 'translateY(-50%)',
+        background: 'var(--accent)', border: 'none', color: '#fff',
+        borderRadius: 6, padding: '7px 16px',
+        fontSize: 13, fontWeight: 600, cursor: 'pointer',
+        fontFamily: 'inherit', whiteSpace: 'nowrap',
+      }}>
+        {signOutLabel}
+      </button>
     </nav>
   );
 };
