@@ -81,16 +81,17 @@ export const NavBar = ({ onSignOut }) => {
       <Logo size={28}/>
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button type="button" onClick={handleSignOut} style={{
-          background: 'transparent',
-          border: '1px solid var(--border)',
-          color: 'var(--fg-muted)',
-          borderRadius: 6, padding: '6px 14px',
-          fontSize: 12, fontWeight: 500, cursor: 'pointer',
+          background: 'var(--accent)',
+          border: 'none',
+          color: '#fff',
+          borderRadius: 6, padding: '7px 16px',
+          fontSize: 13, fontWeight: 600, cursor: 'pointer',
           fontFamily: 'inherit', whiteSpace: 'nowrap',
-          transition: 'border-color 160ms, color 160ms',
+          opacity: 0.9,
+          transition: 'opacity 160ms',
         }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--fg-muted)'; }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = '0.9'; }}
         >
           تسجيل خروج
         </button>
