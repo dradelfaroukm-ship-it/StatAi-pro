@@ -61,22 +61,33 @@ export const NavBar = ({ onSignOut }) => {
   return (
     <div style={{
       position: 'sticky', top: 0, zIndex: 10,
-      display: 'flex', flexDirection: 'row', direction: 'ltr',
-      alignItems: 'center', height: 56,
+      height: 56,
       background: 'rgba(10,15,30,0.92)',
       backdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--border-subtle)',
     }}>
-      <div style={{ flex: 1 }}/>
-      <Logo size={28}/>
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', paddingRight: 24 }}>
+      {/* Logo: absolutely centered, direction-agnostic */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        pointerEvents: 'none',
+      }}>
+        <div style={{ pointerEvents: 'auto' }}><Logo size={28}/></div>
+      </div>
+
+      {/* Sign out: physical right — CSS `right` is never flipped by RTL */}
+      <div style={{
+        position: 'absolute', right: 24, top: 0, bottom: 0,
+        display: 'flex', alignItems: 'center',
+      }}>
         <button
           type="button"
           onClick={async () => { await signOut(); onSignOut?.(); }}
           style={{
             background: 'var(--accent)', border: 'none', color: '#fff',
             borderRadius: 6, padding: '7px 16px',
-            fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+            fontSize: 13, fontWeight: 600, cursor: 'pointer',
+            fontFamily: 'inherit', whiteSpace: 'nowrap',
           }}
         >
           {t.signOut}
