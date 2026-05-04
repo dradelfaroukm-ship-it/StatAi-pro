@@ -1,4 +1,5 @@
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { IconCheck } from './Icons';
 
 export const SigmaTile = ({ size = 32 }) => (
@@ -53,8 +54,12 @@ export const Avatar = ({ name = 'سارة', initial }) => {
   );
 };
 
-export const NavBar = ({ user = { name: 'د. سارة المنصوري' } }) => {
+export const NavBar = () => {
   const { t } = useLanguage();
+  const { session, signOut } = useAuth();
+  const email = session?.user?.email ?? '';
+  const initial = email[0]?.toUpperCase() ?? '?';
+
   return (
     <nav style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -67,10 +72,19 @@ export const NavBar = ({ user = { name: 'د. سارة المنصوري' } }) => 
       <Logo size={28}/>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{ textAlign: 'end' }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)' }}>{user.name}</div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)', direction: 'ltr' }}>{email}</div>
           <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginTop: 1 }}>{t.navRole}</div>
         </div>
-        <Avatar name={user.name} initial="س"/>
+        <Avatar name={email} initial={initial}/>
+        <button type="button" onClick={signOut} style={{
+          background: 'transparent', border: '1px solid var(--border)',
+          color: 'var(--fg-muted)', borderRadius: 'var(--r-button)',
+          padding: '5px 10px', fontSize: 12, cursor: 'pointer',
+          fontFamily: 'inherit', transition: 'all 160ms var(--ease-out)',
+        }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.color = 'var(--fg-primary)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--fg-muted)'; }}
+        >{t.signOut ?? 'Sign out'}</button>
       </div>
     </nav>
   );

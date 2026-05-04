@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from './context/LanguageContext';
+import { useAuth } from './context/AuthContext';
 import LanguageScreen from './screens/LanguageScreen';
 import AuthScreen from './screens/AuthScreen';
 import ProjectsScreen from './screens/ProjectsScreen';
@@ -8,20 +9,31 @@ import PlanScreen from './screens/PlanScreen';
 import ResultsScreen from './screens/ResultsScreen';
 
 const SCREEN_KEYS = ['language', 'auth', 'projects', 'upload', 'plan', 'results'];
+const PROTECTED   = new Set(['projects', 'upload', 'plan', 'results']);
 
 export default function App() {
   const { dir, font, t, code } = useLanguage();
+  const { session, loading }   = useAuth();
 
-  const getInitialScreen = () => {
+  const [screen, setScreen] = useState(() => {
     const hash = window.location.hash.replace('#', '');
     return SCREEN_KEYS.includes(hash) ? hash : 'language';
-  };
+  });
 
-  const [screen, setScreen] = useState(getInitialScreen);
+  // Route protection: runs whenever session or screen changes
+  useEffect(() => {
+    if (loading) return;
+    if (!session && PROTECTED.has(screen)) {
+      setScreen('auth');
+    }
+    if (session && screen === 'auth') {
+      setScreen('projects');
+    }
+  }, [session, loading, screen]);
 
   useEffect(() => {
     window.location.hash = screen;
-    document.title = `StatAI`;
+    document.title = 'StatAI';
   }, [screen]);
 
   const go = (key) => () => setScreen(key);
@@ -34,6 +46,13 @@ export default function App() {
     plan:     t.screenPlan,
     results:  t.screenResults,
   };
+
+  // Blank while Supabase resolves the initial session (avoids flash of wrong screen)
+  if (loading) {
+    return (
+      <div dir={dir} style={{ fontFamily: font, minHeight: '100vh', background: 'var(--bg-primary)' }}/>
+    );
+  }
 
   return (
     <div dir={dir} style={{ fontFamily: font }}>
@@ -67,13 +86,15 @@ export default function App() {
         ))}
       </div>
 
-      {screen === 'language' && <LanguageScreen onContinue={go('auth')}/>}
-      {screen === 'auth'     && <AuthScreen onLogin={go('projects')}/>}
+      {screen === 'language' && (
+        <LanguageScreen onContinue={go(session ? 'projects' : 'auth')}/>
+      )}
+      {screen === 'auth'     && <AuthScreen/>}
       {screen === 'projects' && <ProjectsScreen onNew={go('upload')} onOpen={go('plan')}/>}
-      {/* key={code} remounts these screens when language changes so state re-inits with new translations */}
-      {screen === 'upload'   && <UploadScreen key={code} onNext={go('plan')} onBack={go('projects')}/>}
-      {screen === 'plan'     && <PlanScreen   key={code} onNext={go('results')} onBack={go('upload')}/>}
-      {screen === 'results'  && <ResultsScreen key={code} onBack={go('plan')}/>}
+      {/* key={code} remounts so translated initial state re-inits on language change */}
+      {screen === 'upload'   && <UploadScreen   key={code} onNext={go('plan')}    onBack={go('projects')}/>}
+      {screen === 'plan'     && <PlanScreen     key={code} onNext={go('results')} onBack={go('upload')}/>}
+      {screen === 'results'  && <ResultsScreen  key={code} onBack={go('plan')}/>}
     </div>
   );
 }
