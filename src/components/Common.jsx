@@ -54,11 +54,18 @@ export const Avatar = ({ name = 'سارة', initial }) => {
   );
 };
 
+const SIGN_OUT_LABELS = {
+  ar: 'تسجيل الخروج', en: 'Sign out',   fr: 'Se déconnecter', es: 'Cerrar sesión',
+  de: 'Abmelden',     pt: 'Sair',        'zh-CN': '退出登录',   hi: 'साइन आउट',
+  tr: 'Çıkış yap',    fa: 'خروج از حساب', nl: 'Uitloggen',     ru: 'Выйти',
+};
+
 export const NavBar = ({ onSignOut }) => {
-  const { t } = useLanguage();
+  const { code } = useLanguage();
   const { session, signOut } = useAuth();
   const email = session?.user?.email ?? '';
   const initial = email[0]?.toUpperCase() ?? '?';
+  const signOutLabel = SIGN_OUT_LABELS[code] || 'Sign out';
 
   const handleSignOut = async () => {
     await signOut();
@@ -67,34 +74,33 @@ export const NavBar = ({ onSignOut }) => {
 
   return (
     <nav style={{
-      display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center',
+      display: 'flex', alignItems: 'center',
+      position: 'sticky', top: 0, zIndex: 10,
       padding: '12px 32px',
       background: 'rgba(10,15,30,0.92)',
       backdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--border-subtle)',
-      position: 'sticky', top: 0, zIndex: 10,
-      direction: 'ltr',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      {/* Email + avatar — always on the physical left */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, zIndex: 1 }}>
         <Avatar name={email} initial={initial}/>
         <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)', direction: 'ltr', whiteSpace: 'nowrap' }}>{email}</span>
       </div>
-      <Logo size={28}/>
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+
+      {/* Logo — always physically centered */}
+      <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>
+        <Logo size={28}/>
+      </div>
+
+      {/* Sign out — marginLeft:auto pushes to physical right regardless of RTL */}
+      <div style={{ marginLeft: 'auto', zIndex: 1 }}>
         <button type="button" onClick={handleSignOut} style={{
-          background: 'var(--accent)',
-          border: 'none',
-          color: '#fff',
+          background: 'var(--accent)', border: 'none', color: '#fff',
           borderRadius: 6, padding: '7px 16px',
           fontSize: 13, fontWeight: 600, cursor: 'pointer',
           fontFamily: 'inherit', whiteSpace: 'nowrap',
-          opacity: 0.9,
-          transition: 'opacity 160ms',
-        }}
-          onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = '0.9'; }}
-        >
-          {t.signOut}
+        }}>
+          {signOutLabel}
         </button>
       </div>
     </nav>
