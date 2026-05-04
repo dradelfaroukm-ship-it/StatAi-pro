@@ -54,58 +54,21 @@ export const Avatar = ({ name = 'سارة', initial }) => {
   );
 };
 
-const SIGN_OUT_LABELS = {
-  ar: 'تسجيل الخروج', en: 'Sign out',   fr: 'Se déconnecter', es: 'Cerrar sesión',
-  de: 'Abmelden',     pt: 'Sair',        'zh-CN': '退出登录',   hi: 'साइन आउट',
-  tr: 'Çıkış yap',    fa: 'خروج از حساب', nl: 'Uitloggen',     ru: 'Выйти',
-};
-
 export const NavBar = ({ onSignOut }) => {
   const { code } = useLanguage();
-  const { session, signOut } = useAuth();
-  const email = session?.user?.email ?? '';
-  const initial = email[0]?.toUpperCase() ?? '?';
-  const signOutLabel = SIGN_OUT_LABELS[code] || 'Sign out';
-  console.log('[NavBar] lang code:', code, '→ signOut label:', signOutLabel);
+  const { signOut } = useAuth();
 
-  const handleSignOut = async () => {
-    await signOut();
-    onSignOut?.();
-  };
+  const labels = { ar:'تسجيل الخروج', en:'Sign out', fr:'Se déconnecter', es:'Cerrar sesión', de:'Abmelden', pt:'Sair', 'zh-CN':'退出登录', hi:'साइन आउट', tr:'Çıkış yap', fa:'خروج از حساب', nl:'Uitloggen', ru:'Выйти' };
 
   return (
-    <nav style={{
-      position: 'sticky', top: 0, zIndex: 10,
-      height: 56,
-      background: 'rgba(10,15,30,0.92)',
-      backdropFilter: 'blur(12px)',
-      borderBottom: '1px solid var(--border-subtle)',
-    }}>
-      {/* Email + avatar — pinned to physical left */}
-      <div style={{
-        position: 'absolute', left: 32, top: '50%', transform: 'translateY(-50%)',
-        display: 'flex', alignItems: 'center', gap: 10,
-      }}>
-        <Avatar name={email} initial={initial}/>
-        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)', direction: 'ltr', whiteSpace: 'nowrap' }}>{email}</span>
-      </div>
-
-      {/* Logo — pinned to physical center */}
+    <div style={{ position: 'sticky', top: 0, zIndex: 10, height: 56, background: 'rgba(10,15,30,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--border-subtle)' }}>
       <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)' }}>
         <Logo size={28}/>
       </div>
-
-      {/* Sign out — pinned to physical right, always visible */}
-      <button type="button" onClick={handleSignOut} style={{
-        position: 'absolute', right: 32, top: '50%', transform: 'translateY(-50%)',
-        background: 'var(--accent)', border: 'none', color: '#fff',
-        borderRadius: 6, padding: '7px 16px',
-        fontSize: 13, fontWeight: 600, cursor: 'pointer',
-        fontFamily: 'inherit', whiteSpace: 'nowrap',
-      }}>
-        {signOutLabel}
+      <button type="button" onClick={async () => { await signOut(); onSignOut?.(); }} style={{ position: 'absolute', right: 24, top: '50%', transform: 'translateY(-50%)', background: 'var(--accent)', border: 'none', color: '#fff', borderRadius: 6, padding: '7px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+        {labels[code] || 'Sign out'}
       </button>
-    </nav>
+    </div>
   );
 };
 
