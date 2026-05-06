@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Logo } from '../components/Common';
-import { IconEye, IconEyeOff, GoogleIcon } from '../components/Icons';
+import { IconEye, IconEyeOff } from '../components/Icons';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
 
@@ -65,15 +65,6 @@ export default function AuthScreen() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleGoogle = async () => {
-    reset();
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: 'https://stat-ai-pro.vercel.app' },
-    });
-    if (error) setError(rawError(error));
   };
 
   const handleForgotPassword = async () => {
@@ -197,19 +188,6 @@ export default function AuthScreen() {
           onClick={handleSubmit}
         >
           {loading ? '…' : isLogin ? t.signInBtn : t.createAccountBtn}
-        </button>
-
-        {/* Divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '18px 0', color: 'var(--fg-muted)', fontSize: 12 }}>
-          <div style={{ flex: 1, height: 1, background: 'var(--border-subtle)' }}/>
-          <span>{t.orDivider}</span>
-          <div style={{ flex: 1, height: 1, background: 'var(--border-subtle)' }}/>
-        </div>
-
-        {/* Google OAuth */}
-        <button className="btn btn--google btn--full" type="button" onClick={handleGoogle} disabled={loading}>
-          <GoogleIcon size={16}/>
-          <span style={{ fontSize: 13 }}>{t.continueWithGoogle}</span>
         </button>
 
         {/* Switch tab link */}
