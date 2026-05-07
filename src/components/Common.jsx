@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { IconCheck } from './Icons';
@@ -65,10 +66,12 @@ export const Avatar = ({ name = 'سارة', initial }) => {
   );
 };
 
-export const StepSidebar = ({ currentScreen }) => {
+export const StepSidebar = ({ currentScreen, onNavigate }) => {
   const { t, dir } = useLanguage();
+  const { session } = useAuth();
   const isRTL = dir === 'rtl';
   const currentIdx = SIDEBAR_STEPS.findIndex(s => s.key === currentScreen);
+  const [hoveredIdx, setHoveredIdx] = useState(null);
 
   return (
     <div className="step-sidebar" style={{
@@ -89,9 +92,12 @@ export const StepSidebar = ({ currentScreen }) => {
       overflowY: 'auto',
     }}>
       {SIDEBAR_STEPS.map((s, i) => {
-        const isDone   = i < currentIdx;
-        const isActive = i === currentIdx;
-        const isFuture = i > currentIdx;
+        const isDone      = i < currentIdx;
+        const isActive    = i === currentIdx;
+        const isFuture    = i > currentIdx;
+        const isClickable = i <= 1 || !!session;
+        const isHovered   = hoveredIdx === i && isClickable && !isActive;
+
         return (
           <div key={s.key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
             {i > 0 && (
@@ -100,18 +106,27 @@ export const StepSidebar = ({ currentScreen }) => {
                 background: isDone ? 'rgba(16,185,129,0.45)' : isActive ? 'rgba(108,99,255,0.35)' : 'var(--border)',
               }}/>
             )}
-            <div style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center',
-              gap: 5, padding: '6px 0',
-              opacity: isFuture ? 0.3 : 1,
-              transition: 'opacity 200ms',
-            }}>
+            <button
+              onClick={() => isClickable && onNavigate?.(s.key)}
+              onMouseEnter={() => setHoveredIdx(i)}
+              onMouseLeave={() => setHoveredIdx(null)}
+              style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                gap: 5, padding: '6px 4px', width: '100%',
+                background: isHovered ? 'rgba(108,99,255,0.07)' : 'transparent',
+                border: 'none',
+                cursor: isClickable ? 'pointer' : 'default',
+                opacity: isFuture ? (isClickable ? 0.5 : 0.28) : 1,
+                transition: 'opacity 200ms, background 140ms',
+                fontFamily: 'inherit',
+              }}
+            >
               <div style={{
                 width: 28, height: 28, borderRadius: '50%',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: isDone ? 'var(--success-tint)' : isActive ? 'var(--accent)' : 'transparent',
-                border: `1.5px solid ${isDone ? 'rgba(16,185,129,0.45)' : isActive ? 'var(--accent)' : 'var(--border)'}`,
-                color: isDone ? 'var(--success)' : isActive ? '#fff' : 'var(--fg-muted)',
+                background: isDone ? 'var(--success-tint)' : isActive ? 'var(--accent)' : isHovered ? 'var(--accent-tint)' : 'transparent',
+                border: `1.5px solid ${isDone ? 'rgba(16,185,129,0.45)' : isActive ? 'var(--accent)' : isHovered ? 'rgba(108,99,255,0.4)' : 'var(--border)'}`,
+                color: isDone ? 'var(--success)' : isActive ? '#fff' : isHovered ? 'var(--accent)' : 'var(--fg-muted)',
                 fontSize: 11, fontWeight: 600,
                 fontFamily: 'var(--font-numeric)',
                 boxShadow: isActive ? '0 0 0 3px var(--accent-tint-2)' : 'none',
@@ -122,12 +137,12 @@ export const StepSidebar = ({ currentScreen }) => {
               </div>
               <div style={{
                 fontSize: 9, fontWeight: isActive ? 600 : 400,
-                color: isActive ? 'var(--fg-primary)' : 'var(--fg-muted)',
+                color: isActive ? 'var(--fg-primary)' : isHovered ? 'var(--fg-secondary)' : 'var(--fg-muted)',
                 textAlign: 'center', lineHeight: 1.3,
                 width: 66, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 transition: 'color 200ms',
               }}>{t[s.labelKey]}</div>
-            </div>
+            </button>
           </div>
         );
       })}

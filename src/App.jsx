@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from './context/LanguageContext';
 import { useAuth } from './context/AuthContext';
 import { StepSidebar, SIDEBAR_W } from './components/Common';
@@ -21,17 +21,26 @@ export default function App() {
     return SCREEN_KEYS.includes(hash) ? hash : 'language';
   });
 
-  // Route protection: runs whenever session or screen changes
+  // Keep a ref so the session-change effect always reads the current screen
+  // without adding it to its own dep array (which would re-run it on manual nav).
+  const screenRef = useRef(screen);
+  useEffect(() => { screenRef.current = screen; }, [screen]);
+
+  // After login / OAuth callback: redirect away from non-app screens.
+  // Intentionally omits `screen` from deps so manual sidebar navigation to
+  // Language or Login is not immediately overridden while the user is logged in.
   useEffect(() => {
     if (loading) return;
-    // No session on a protected screen → send to auth
+    if (session && !PROTECTED.has(screenRef.current)) {
+      setScreen('projects');
+    }
+  }, [session, loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Guard protected screens: kick to auth if session is lost.
+  useEffect(() => {
+    if (loading) return;
     if (!session && PROTECTED.has(screen)) {
       setScreen('auth');
-    }
-    // Session exists but on a non-app screen (language, auth, or any OAuth callback URL
-    // that didn't match a screen key) → go straight to projects
-    if (session && !PROTECTED.has(screen)) {
-      setScreen('projects');
     }
   }, [session, loading, screen]);
 
@@ -59,7 +68,7 @@ export default function App() {
       )}
       {screen === 'auth' && <AuthScreen/>}
 
-      {showSidebar && <StepSidebar currentScreen={screen}/>}
+      {showSidebar && <StepSidebar currentScreen={screen} onNavigate={setScreen}/>}
 
       {showSidebar && (
         <div style={{ paddingInlineStart: SIDEBAR_W }}>
