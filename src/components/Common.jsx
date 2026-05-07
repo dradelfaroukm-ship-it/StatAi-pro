@@ -2,6 +2,17 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { IconCheck } from './Icons';
 
+export const SIDEBAR_W = 80;
+
+const SIDEBAR_STEPS = [
+  { key: 'language', labelKey: 'screenLang' },
+  { key: 'auth',     labelKey: 'screenAuth' },
+  { key: 'projects', labelKey: 'screenProjects' },
+  { key: 'upload',   labelKey: 'screenUpload' },
+  { key: 'plan',     labelKey: 'screenPlan' },
+  { key: 'results',  labelKey: 'screenResults' },
+];
+
 export const SigmaTile = ({ size = 32 }) => (
   <svg width={size} height={size} viewBox="0 0 56 56" aria-hidden="true">
     <defs>
@@ -54,14 +65,83 @@ export const Avatar = ({ name = 'سارة', initial }) => {
   );
 };
 
+export const StepSidebar = ({ currentScreen }) => {
+  const { t, dir } = useLanguage();
+  const isRTL = dir === 'rtl';
+  const currentIdx = SIDEBAR_STEPS.findIndex(s => s.key === currentScreen);
+
+  return (
+    <div className="step-sidebar" style={{
+      position: 'fixed',
+      top: 56,
+      bottom: 0,
+      [isRTL ? 'right' : 'left']: 0,
+      width: SIDEBAR_W,
+      background: 'rgba(10,15,30,0.88)',
+      backdropFilter: 'blur(10px)',
+      borderInlineEnd: '1px solid var(--border-subtle)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      paddingTop: 24,
+      paddingBottom: 24,
+      zIndex: 15,
+      overflowY: 'auto',
+    }}>
+      {SIDEBAR_STEPS.map((s, i) => {
+        const isDone   = i < currentIdx;
+        const isActive = i === currentIdx;
+        const isFuture = i > currentIdx;
+        return (
+          <div key={s.key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+            {i > 0 && (
+              <div style={{
+                width: 1, height: 12, flexShrink: 0,
+                background: isDone ? 'rgba(16,185,129,0.45)' : isActive ? 'rgba(108,99,255,0.35)' : 'var(--border)',
+              }}/>
+            )}
+            <div style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              gap: 5, padding: '6px 0',
+              opacity: isFuture ? 0.3 : 1,
+              transition: 'opacity 200ms',
+            }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: isDone ? 'var(--success-tint)' : isActive ? 'var(--accent)' : 'transparent',
+                border: `1.5px solid ${isDone ? 'rgba(16,185,129,0.45)' : isActive ? 'var(--accent)' : 'var(--border)'}`,
+                color: isDone ? 'var(--success)' : isActive ? '#fff' : 'var(--fg-muted)',
+                fontSize: 11, fontWeight: 600,
+                fontFamily: 'var(--font-numeric)',
+                boxShadow: isActive ? '0 0 0 3px var(--accent-tint-2)' : 'none',
+                transition: 'all 200ms var(--ease-out)',
+                flexShrink: 0,
+              }}>
+                {isDone ? <IconCheck size={12}/> : <span className="num">{i + 1}</span>}
+              </div>
+              <div style={{
+                fontSize: 9, fontWeight: isActive ? 600 : 400,
+                color: isActive ? 'var(--fg-primary)' : 'var(--fg-muted)',
+                textAlign: 'center', lineHeight: 1.3,
+                width: 66, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                transition: 'color 200ms',
+              }}>{t[s.labelKey]}</div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 export const NavBar = ({ onSignOut }) => {
   const { t } = useLanguage();
   const { signOut } = useAuth();
 
   return (
     <>
-      {/* Sign out: fixed top-left — position:fixed with physical `left` is
-          never affected by dir="rtl", so it shows in every language */}
+      {/* Sign out: fixed top-left — physical `left` is never affected by dir="rtl" */}
       <button
         type="button"
         onClick={async () => { await signOut(); onSignOut?.(); }}
@@ -76,8 +156,9 @@ export const NavBar = ({ onSignOut }) => {
         {t.signOut}
       </button>
 
+      {/* Fixed full-width header — unaffected by any parent padding */}
       <div style={{
-        position: 'sticky', top: 0, zIndex: 10,
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 10,
         height: 56,
         background: 'rgba(10,15,30,0.92)',
         backdropFilter: 'blur(12px)',
@@ -86,6 +167,9 @@ export const NavBar = ({ onSignOut }) => {
       }}>
         <Logo size={28}/>
       </div>
+
+      {/* Spacer so page content clears the fixed header */}
+      <div style={{ height: 56 }}/>
     </>
   );
 };
