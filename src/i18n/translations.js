@@ -172,6 +172,13 @@ const ar = {
   roleIndependent: 'مستقل',
   roleDependent: 'تابع',
   roleMediator: 'وسيط',
+  // AI loading / error states
+  aiGeneratingPlan: 'جاري إنشاء الخطة الإحصائية…',
+  aiExecutingAnalysis: 'جاري تنفيذ التحليل الإحصائي…',
+  aiError: 'خطأ في المساعد الذكي',
+  aiErrorMsg: 'حدث خطأ أثناء الاتصال بالمساعد الذكي. يرجى المحاولة مرة أخرى.',
+  retryBtn: 'إعادة المحاولة',
+  normallyLabel: 'عادةً',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -328,6 +335,13 @@ const en = {
   roleIndependent: 'Independent',
   roleDependent: 'Dependent',
   roleMediator: 'Mediator',
+  // AI loading / error states
+  aiGeneratingPlan: 'Generating statistical plan…',
+  aiExecutingAnalysis: 'Executing statistical analysis…',
+  aiError: 'AI Error',
+  aiErrorMsg: 'An error occurred while connecting to the AI assistant. Please try again.',
+  retryBtn: 'Retry',
+  normallyLabel: 'Normally',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -66,6 +66,29 @@ export const Avatar = ({ name = 'سارة', initial }) => {
   );
 };
 
+export const Spinner = ({ size = 20, color = 'var(--accent)' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" style={{ animation: 'spin 0.9s linear infinite', flexShrink: 0 }} aria-hidden="true">
+    <circle cx="12" cy="12" r="10" fill="none" stroke={color} strokeWidth="2.5" strokeOpacity="0.25"/>
+    <path d="M12 2a10 10 0 0 1 10 10" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
+  </svg>
+);
+
+export const LoadingOverlay = ({ messageKey }) => {
+  const { t } = useLanguage();
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 100,
+      background: 'rgba(10,15,30,0.82)', backdropFilter: 'blur(6px)',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16,
+    }}>
+      <Spinner size={40}/>
+      <div style={{ fontSize: 15, color: 'var(--fg-secondary)', fontWeight: 500 }}>
+        {t[messageKey] || t.aiGeneratingPlan}
+      </div>
+    </div>
+  );
+};
+
 export const StepSidebar = ({ currentScreen, onNavigate }) => {
   const { t, dir } = useLanguage();
   const { session } = useAuth();

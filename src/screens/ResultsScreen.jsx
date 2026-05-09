@@ -91,7 +91,20 @@ const ResultsTable = ({ headers, rows }) => (
 
 const Divider = () => <div style={{ height:1, background:'var(--border-subtle)', margin:'32px 0' }}/>;
 
-export default function ResultsScreen({ onBack, onSignOut }) {
+const AIResultsView = ({ text }) => {
+  const { t } = useLanguage();
+  return (
+    <div className="card" style={{ padding: 24, marginTop: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 14 }}>
+        <IconSpark size={14} style={{ color: 'var(--accent)', flexShrink: 0 }}/>
+        <strong style={{ color: 'var(--accent)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t.aiCommentary}</strong>
+      </div>
+      <div style={{ fontSize: 14, color: 'var(--fg-primary)', lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>{text}</div>
+    </div>
+  );
+};
+
+export default function ResultsScreen({ resultsText, onBack, onSignOut }) {
   const { t } = useLanguage();
   const [approved, setApproved] = useState(false);
 
@@ -132,60 +145,67 @@ export default function ResultsScreen({ onBack, onSignOut }) {
 
         <StepIndicator current={4} completed={[1,2,3]}/>
 
-        <section>
-          <h2 className="h2">{t.descStats}</h2>
-          <ResultsTable
-            headers={[t.thVariable, 'N', t.thMean, t.thSD, t.thMin, t.thMax]}
-            rows={descTable.map(r=>[r.v, r.n, r.mean.toFixed(2), r.sd.toFixed(2), r.min, r.max])}/>
-          <div style={{ marginTop:20 }}><BarChart/></div>
-          <Commentary>{t.descCommentary}</Commentary>
-        </section>
+        {/* AI-generated results take precedence; fall back to demo tables */}
+        {resultsText ? (
+          <AIResultsView text={resultsText}/>
+        ) : (
+          <>
+            <section>
+              <h2 className="h2">{t.descStats}</h2>
+              <ResultsTable
+                headers={[t.thVariable, 'N', t.thMean, t.thSD, t.thMin, t.thMax]}
+                rows={descTable.map(r=>[r.v, r.n, r.mean.toFixed(2), r.sd.toFixed(2), r.min, r.max])}/>
+              <div style={{ marginTop:20 }}><BarChart/></div>
+              <Commentary>{t.descCommentary}</Commentary>
+            </section>
 
-        <Divider/>
+            <Divider/>
 
-        <section>
-          <h2 className="h2">{t.regression}</h2>
-          <div style={{ marginTop:8, display:'flex', gap:8, flexWrap:'wrap' }}>
-            <span className="chip chip--advanced"><span className="latin">R² = 0.387</span></span>
-            <span className="chip chip--advanced"><span className="latin">F(3, 346) = 72.4</span></span>
-            <span className="chip chip--success"><span className="latin">p &lt; 0.001</span></span>
-          </div>
-          <ResultsTable
-            headers={[t.thVariable, 'B', 'β', 't', 'p']}
-            rows={regressionTable.map(r=>[r.v, typeof r.b==='number'?r.b.toFixed(3):r.b, r.beta, r.t_, r.p])}/>
-          <div style={{ marginTop:20 }}><ScatterChart/></div>
-          <Commentary>{t.regCommentary}</Commentary>
-        </section>
-
-        <Divider/>
-
-        <section>
-          <h2 className="h2">{t.hypothesesSummary}</h2>
-          <div style={{ display:'flex', flexDirection:'column', gap:10, marginTop:12 }}>
-            {hypotheses.map(h => (
-              <div key={h.id} className="card" style={{
-                padding:16, display:'flex', alignItems:'center', gap:14,
-                borderColor: h.accepted ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)',
-              }}>
-                <div style={{
-                  width:34, height:34, borderRadius:'50%', flexShrink:0,
-                  background: h.accepted ? 'var(--success-tint)' : 'var(--error-tint)',
-                  color: h.accepted ? 'var(--success)' : 'var(--error)',
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                }}>{h.accepted ? <IconCheck size={16}/> : <IconX size={16}/>}</div>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontSize:11, color:'var(--fg-muted)', marginBottom:3, textTransform:'uppercase', letterSpacing:'0.04em' }}>
-                    {t.hypothesisLabel} <span className="num">{h.id}</span>
-                  </div>
-                  <div style={{ fontSize:13, color:'var(--fg-primary)', lineHeight:1.6 }}>{h.text}</div>
-                </div>
-                <span className={`chip ${h.accepted ? 'chip--success' : 'chip--error'}`}>
-                  {h.accepted ? t.accepted : t.rejected}
-                </span>
+            <section>
+              <h2 className="h2">{t.regression}</h2>
+              <div style={{ marginTop:8, display:'flex', gap:8, flexWrap:'wrap' }}>
+                <span className="chip chip--advanced"><span className="latin">R² = 0.387</span></span>
+                <span className="chip chip--advanced"><span className="latin">F(3, 346) = 72.4</span></span>
+                <span className="chip chip--success"><span className="latin">p &lt; 0.001</span></span>
               </div>
-            ))}
-          </div>
-        </section>
+              <ResultsTable
+                headers={[t.thVariable, 'B', 'β', 't', 'p']}
+                rows={regressionTable.map(r=>[r.v, typeof r.b==='number'?r.b.toFixed(3):r.b, r.beta, r.t_, r.p])}/>
+              <div style={{ marginTop:20 }}><ScatterChart/></div>
+              <Commentary>{t.regCommentary}</Commentary>
+            </section>
+
+            <Divider/>
+
+            <section>
+              <h2 className="h2">{t.hypothesesSummary}</h2>
+              <div style={{ display:'flex', flexDirection:'column', gap:10, marginTop:12 }}>
+                {hypotheses.map(h => (
+                  <div key={h.id} className="card" style={{
+                    padding:16, display:'flex', alignItems:'center', gap:14,
+                    borderColor: h.accepted ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)',
+                  }}>
+                    <div style={{
+                      width:34, height:34, borderRadius:'50%', flexShrink:0,
+                      background: h.accepted ? 'var(--success-tint)' : 'var(--error-tint)',
+                      color: h.accepted ? 'var(--success)' : 'var(--error)',
+                      display:'flex', alignItems:'center', justifyContent:'center',
+                    }}>{h.accepted ? <IconCheck size={16}/> : <IconX size={16}/>}</div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:11, color:'var(--fg-muted)', marginBottom:3, textTransform:'uppercase', letterSpacing:'0.04em' }}>
+                        {t.hypothesisLabel} <span className="num">{h.id}</span>
+                      </div>
+                      <div style={{ fontSize:13, color:'var(--fg-primary)', lineHeight:1.6 }}>{h.text}</div>
+                    </div>
+                    <span className={`chip ${h.accepted ? 'chip--success' : 'chip--error'}`}>
+                      {h.accepted ? t.accepted : t.rejected}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
       </main>
 
       {/* Sticky approval bar */}

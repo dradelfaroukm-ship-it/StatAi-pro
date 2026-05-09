@@ -166,6 +166,12 @@ const nl = {
   hyp2Text: 'Platformgebruiksuren en leermotivatie hebben een significant effect op het GPA',
   descCommentary: 'Het gemiddelde GPA van de steekproef is 3,12 (SD = 0,46), wat wijst op een relatieve homogeniteit in academische prestaties. Meer dan 66% van de deelnemers valt in het bereik 3,0–4,0, wat duidt op een goed presterende steekproef die voldoet aan de voorwaarden voor inferentiële analyse.',
   regCommentary: 'Het regressiemodel verklaart 38,7% van de GPA-variantie (R² = 0,387), wat acceptabel is volgens educatieve en psychologische onderzoeksnormen. Platformgebruiksuren zijn de sterkste voorspeller (β = 0,412), gevolgd door leermotivatie (β = 0,298). Academisch niveau bereikte geen statistische significantie (p = 0,082).',
+  aiGeneratingPlan: 'Statistisch plan genereren…',
+  aiExecutingAnalysis: 'Statistische analyse uitvoeren…',
+  aiError: 'AI-fout',
+  aiErrorMsg: 'Er is een fout opgetreden bij het verbinden met de AI-assistent. Probeer het opnieuw.',
+  retryBtn: 'Opnieuw proberen',
+  normallyLabel: 'Normaal',
 };
 
 export default nl;

@@ -1,24 +1,94 @@
 import { useState, useRef } from 'react';
-import { NavBar, StepIndicator } from '../components/Common';
-import { IconArrowR, IconArrowL, IconUpload, IconFile, IconCheck, IconX } from '../components/Icons';
+import { NavBar, StepIndicator, LoadingOverlay } from '../components/Common';
+import { IconArrowR, IconArrowL, IconUpload, IconFile, IconCheck, IconX, IconSpark } from '../components/Icons';
 import { useLanguage } from '../context/LanguageContext';
+import { generateStatisticalPlan } from '../lib/claudeClient';
 
 const FORMATS = ['CSV', 'Excel', 'SPSS', 'JSON'];
+const FILE_CONTENT_LIMIT = 4000;
+
+async function readFileContent(file) {
+  const name = file.name.toLowerCase();
+  const isText = name.endsWith('.csv') || name.endsWith('.json');
+  if (!isText) {
+    return `[Binary file: ${file.name}, size: ${(file.size / 1024).toFixed(1)} KB]`;
+  }
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target.result;
+      resolve(text.length > FILE_CONTENT_LIMIT ? text.slice(0, FILE_CONTENT_LIMIT) + '\n[truncated…]' : text);
+    };
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
+}
+
+function countRowsCols(fileContent, fileName) {
+  if (!fileContent || fileContent.startsWith('[Binary')) return { rows: '?', cols: '?' };
+  if (fileName.toLowerCase().endsWith('.json')) {
+    try {
+      const parsed = JSON.parse(fileContent.replace('\n[truncated…]', ''));
+      if (Array.isArray(parsed)) {
+        const cols = parsed.length ? Object.keys(parsed[0]).length : 0;
+        return { rows: parsed.length, cols };
+      }
+    } catch { /* fall through */ }
+  }
+  const lines = fileContent.split('\n').filter(l => l.trim());
+  return { rows: Math.max(0, lines.length - 1), cols: lines[0] ? lines[0].split(',').length : '?' };
+}
 
 export default function UploadScreen({ onNext, onBack, onSignOut }) {
-  const { t } = useLanguage();
-  const [uploaded, setUploaded] = useState(false);
+  const { t, code } = useLanguage();
+  const [file, setFile]         = useState(null);
+  const [fileContent, setFileContent] = useState(null);
   const [dragging, setDragging] = useState(false);
-  const [title, setTitle] = useState(() => t.defaultResearchTitle);
-  const [hyp, setHyp]     = useState(() => t.defaultHypotheses);
-  const [goals, setGoals] = useState(() => t.defaultGoals);
+  const [title, setTitle]       = useState(() => t.defaultResearchTitle);
+  const [hyp, setHyp]           = useState(() => t.defaultHypotheses);
+  const [goals, setGoals]       = useState(() => t.defaultGoals);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState(null);
   const fileInput = useRef(null);
 
-  const handleDrop = (e) => { e.preventDefault(); setDragging(false); if (e.dataTransfer.files.length > 0) setUploaded(true); };
+  const handleFile = async (f) => {
+    setFile(f);
+    setError(null);
+    const content = await readFileContent(f);
+    setFileContent(content);
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault(); setDragging(false);
+    if (e.dataTransfer.files[0]) await handleFile(e.dataTransfer.files[0]);
+  };
+
   const handleDragOver = (e) => { e.preventDefault(); setDragging(true); };
+
+  const { rows, cols } = file && fileContent ? countRowsCols(fileContent, file.name) : { rows: null, cols: null };
+
+  const handleNext = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const uploadData = {
+        title, hypotheses: hyp, goals,
+        rows, cols,
+        fileContent: fileContent || '',
+        fileName: file?.name || '',
+      };
+      const { planText, methods, pricing } = await generateStatisticalPlan(uploadData, code);
+      onNext({ ...uploadData, planText, methods, pricing });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+      {loading && <LoadingOverlay messageKey="aiGeneratingPlan"/>}
       <NavBar onSignOut={onSignOut}/>
       <main style={{ maxWidth: 860, margin: '0 auto', padding: '24px 24px 56px' }}>
         <button onClick={onBack} style={{
@@ -37,20 +107,20 @@ export default function UploadScreen({ onNext, onBack, onSignOut }) {
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={() => setDragging(false)}
-          onClick={() => !uploaded && fileInput.current?.click()}
+          onClick={() => !file && fileInput.current?.click()}
           style={{
             marginTop: 20,
             background: dragging ? 'var(--accent-tint-2)' : 'var(--bg-card)',
-            border: `1px dashed ${dragging ? 'var(--accent)' : uploaded ? 'transparent' : 'var(--border-strong)'}`,
+            border: `1px dashed ${dragging ? 'var(--accent)' : file ? 'transparent' : 'var(--border-strong)'}`,
             borderRadius: 'var(--r-card)',
             padding: '36px 24px', textAlign: 'center',
             transition: 'all 180ms var(--ease-out)',
-            cursor: uploaded ? 'default' : 'pointer',
+            cursor: file ? 'default' : 'pointer',
           }}>
           <input ref={fileInput} type="file" accept=".csv,.xlsx,.xls,.sav,.json"
-                 style={{ display: 'none' }} onChange={e => { if (e.target.files.length > 0) setUploaded(true); }}/>
+                 style={{ display: 'none' }} onChange={e => { if (e.target.files[0]) handleFile(e.target.files[0]); }}/>
 
-          {!uploaded ? (
+          {!file ? (
             <>
               <div style={{
                 width: 52, height: 52, margin: '0 auto 14px', borderRadius: 'var(--r-card)',
@@ -80,14 +150,16 @@ export default function UploadScreen({ onNext, onBack, onSignOut }) {
               }}><IconFile size={18}/></div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 500, color: 'var(--fg-primary)', fontSize: 13 }}>
-                  <span className="latin">student_data_2026.csv</span>
+                  <span className="latin">{file.name}</span>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginTop: 2 }}>
-                  <span className="num">2.4 MB</span> · <span className="num">350</span> {t.rowsLabel} · <span className="num">12</span> {t.colsLabel}
+                  <span className="num">{(file.size / 1024 / 1024).toFixed(1)} MB</span>
+                  {rows != null && <> · <span className="num">{rows}</span> {t.rowsLabel}</>}
+                  {cols != null && <> · <span className="num">{cols}</span> {t.colsLabel}</>}
                 </div>
               </div>
               <span className="chip chip--success"><IconCheck size={11}/> {t.fileUploaded}</span>
-              <button onClick={() => setUploaded(false)} aria-label="remove"
+              <button onClick={() => { setFile(null); setFileContent(null); }} aria-label="remove"
                 style={{ background: 'transparent', border: 'none', color: 'var(--fg-muted)', cursor: 'pointer', display: 'flex', padding: 4 }}>
                 <IconX size={14}/>
               </button>
@@ -118,8 +190,19 @@ export default function UploadScreen({ onNext, onBack, onSignOut }) {
           </div>
         </section>
 
-        <button className="btn btn--primary btn--full btn--lg" style={{ marginTop: 28 }} onClick={onNext}>
-          {t.nextBtn} <IconArrowL size={15}/>
+        {error && (
+          <div className="banner banner--error" style={{ marginTop: 20 }}>
+            <div>
+              <strong>{t.aiError}</strong> — {error}
+            </div>
+            <button className="btn btn--secondary" onClick={handleNext} style={{ whiteSpace: 'nowrap', fontSize: 12 }}>
+              {t.retryBtn}
+            </button>
+          </div>
+        )}
+
+        <button className="btn btn--primary btn--full btn--lg" style={{ marginTop: 28 }} onClick={handleNext} disabled={loading}>
+          <IconSpark size={15}/> {t.nextBtn} <IconArrowL size={15}/>
         </button>
       </main>
     </div>

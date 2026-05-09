@@ -1,7 +1,9 @@
-import { useState } from 'react';
-import { NavBar, StepIndicator } from '../components/Common';
-import { IconCheck, IconEdit, IconTrash, IconBolt } from '../components/Icons';
+import { useState, useEffect } from 'react';
+import { NavBar, StepIndicator, LoadingOverlay } from '../components/Common';
+import { IconCheck, IconEdit, IconTrash, IconBolt, IconSpark } from '../components/Icons';
 import { useLanguage } from '../context/LanguageContext';
+import { generateStatisticalPlan, executeAnalysis, detectAnalysisLevel } from '../lib/claudeClient';
+import { supabase } from '../lib/supabase';
 
 const TYPE_KEYS = ['typeNominal', 'typeOrdinal', 'typeQuantitative'];
 const ROLE_KEYS = ['roleIndependent', 'roleDependent', 'roleMediator'];
@@ -28,6 +30,30 @@ const iconBtnStyle = {
   color: 'var(--fg-muted)', cursor: 'pointer', padding: 6, borderRadius: 6, display: 'flex',
 };
 
+const thStyle = { textAlign: 'start', padding: '11px 16px', fontSize: 12, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' };
+const tdStyle = { textAlign: 'start', padding: '10px 16px', fontSize: 13, color: 'var(--fg-primary)', borderTop: '1px solid var(--border-subtle)' };
+
+const PRICING_TIERS = [
+  { key: 'basic',        labelKey: 'levelBasic',        price: '$50',   hex: '#10b981' },
+  { key: 'intermediate', labelKey: 'levelMedium',        price: '$100',  hex: '#3b82f6' },
+  { key: 'advanced',     labelKey: 'levelAdvanced',      price: '$175',  hex: '#6c63ff' },
+  { key: 'professional', labelKey: 'levelProfessional',  price: '$275',  hex: '#d97706' },
+];
+
+const FALLBACK_VARS = (t) => [
+  { name: t.varGender,             typeKey: 'typeNominal',      roleKey: 'roleIndependent' },
+  { name: t.varAcademicLevel,      typeKey: 'typeOrdinal',      roleKey: 'roleIndependent' },
+  { name: t.varUsageHours,         typeKey: 'typeQuantitative', roleKey: 'roleIndependent' },
+  { name: t.varLearningMotivation, typeKey: 'typeQuantitative', roleKey: 'roleIndependent' },
+  { name: t.varGPA,                typeKey: 'typeQuantitative', roleKey: 'roleDependent'   },
+];
+
+const FALLBACK_METHODS = (t) => [
+  { name: t.m1Name, hyp: t.m1Hyp, why: t.m1Why, rel: t.m1Rel, stats: t.m1Stats },
+  { name: t.m2Name, hyp: t.m2Hyp, why: t.m2Why, rel: t.m2Rel, stats: t.m2Stats },
+  { name: t.m3Name, hyp: t.m3Hyp, why: t.m3Why, rel: t.m3Rel, stats: t.m3Stats },
+];
+
 const MethodCard = ({ m, idx }) => {
   const { t } = useLanguage();
   return (
@@ -41,7 +67,7 @@ const MethodCard = ({ m, idx }) => {
           }}>{idx}</div>
           <div>
             <h3 className="h3" style={{ margin: 0, fontWeight: 600 }}>{m.name}</h3>
-            <div style={{ marginTop: 5 }}><span className="chip chip--advanced">{m.hyp}</span></div>
+            {m.hyp && <div style={{ marginTop: 5 }}><span className="chip chip--advanced">{m.hyp}</span></div>}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 4 }}>
@@ -49,60 +75,115 @@ const MethodCard = ({ m, idx }) => {
           <button style={iconBtnStyle}><IconTrash size={14}/></button>
         </div>
       </div>
-      <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {[
-          { q: t.methodWhyQ,   a: m.why },
-          { q: t.methodRelQ,   a: m.rel },
-          { q: t.methodStatsQ, a: m.stats },
-        ].map(b => (
-          <div key={b.q} className="explain-box">
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{b.q}</div>
-            <div style={{ fontSize: 13, color: 'var(--fg-primary)', lineHeight: 1.7 }}>{b.a}</div>
-          </div>
-        ))}
-      </div>
+      {(m.why || m.rel || m.stats) && (
+        <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {[
+            { q: t.methodWhyQ,   a: m.why },
+            { q: t.methodRelQ,   a: m.rel },
+            { q: t.methodStatsQ, a: m.stats },
+          ].filter(b => b.a).map(b => (
+            <div key={b.q} className="explain-box">
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{b.q}</div>
+              <div style={{ fontSize: 13, color: 'var(--fg-primary)', lineHeight: 1.7 }}>{b.a}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
-const thStyle = { textAlign: 'start', padding: '11px 16px', fontSize: 12, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' };
-const tdStyle = { textAlign: 'start', padding: '10px 16px', fontSize: 13, color: 'var(--fg-primary)', borderTop: '1px solid var(--border-subtle)' };
+export default function PlanScreen({ uploadData, planData, onPlanReady, onNext, onBack, onSignOut }) {
+  const { t, code } = useLanguage();
 
-// Pricing tiers — highest method complexity in the plan drives the price.
-// Demo plan (descriptive stats + t-test + multiple regression) → Intermediate.
-const PRICING_TIERS = [
-  { key: 'basic',        labelKey: 'levelBasic',        price: '$50',   hex: '#10b981' },
-  { key: 'intermediate', labelKey: 'levelMedium',        price: '$100',  hex: '#3b82f6' },
-  { key: 'advanced',     labelKey: 'levelAdvanced',      price: '$175',  hex: '#6c63ff' },
-  { key: 'professional', labelKey: 'levelProfessional',  price: '$275',  hex: '#d97706' },
-];
-const DETECTED_TIER = 'intermediate'; // multiple regression → levels 4-6
-const DETECTED_PRICE = '$100.00';
-
-export default function PlanScreen({ onNext, onBack, onSignOut }) {
-  const { t } = useLanguage();
-
-  const [variables, setVariables] = useState(() => [
-    { name: t.varGender,            typeKey: 'typeNominal',      roleKey: 'roleIndependent' },
-    { name: t.varAcademicLevel,     typeKey: 'typeOrdinal',      roleKey: 'roleIndependent' },
-    { name: t.varUsageHours,        typeKey: 'typeQuantitative', roleKey: 'roleIndependent' },
-    { name: t.varLearningMotivation,typeKey: 'typeQuantitative', roleKey: 'roleIndependent' },
-    { name: t.varGPA,               typeKey: 'typeQuantitative', roleKey: 'roleDependent'   },
-  ]);
-
-  const methods = [
-    { name: t.m1Name, hyp: t.m1Hyp, why: t.m1Why, rel: t.m1Rel, stats: t.m1Stats },
-    { name: t.m2Name, hyp: t.m2Hyp, why: t.m2Why, rel: t.m2Rel, stats: t.m2Stats },
-    { name: t.m3Name, hyp: t.m3Hyp, why: t.m3Why, rel: t.m3Rel, stats: t.m3Stats },
-  ];
-
+  const [variables, setVariables] = useState(() => FALLBACK_VARS(t));
+  const [methods, setMethods]     = useState(() => FALLBACK_METHODS(t));
+  const [pricing, setPricing]     = useState(() => detectAnalysisLevel([]));
+  const [planText, setPlanText]   = useState(null);
   const [editingIdx, setEditingIdx] = useState(null);
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState(null);
+
+  // If uploadData came with a plan already (from UploadScreen Call 1), use it
+  useEffect(() => {
+    if (uploadData?.planText && !planText) {
+      const pd = { planText: uploadData.planText, methods: uploadData.methods, pricing: uploadData.pricing };
+      applyPlanData(pd);
+      onPlanReady?.(pd);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // If planData is passed in explicitly (e.g. re-entering plan screen)
+  useEffect(() => {
+    if (planData && !planText) applyPlanData(planData);
+  }, [planData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function applyPlanData(pd) {
+    if (pd.planText) setPlanText(pd.planText);
+    if (pd.pricing)  setPricing(pd.pricing);
+    if (pd.methods?.length) {
+      setMethods(pd.methods.map((name, i) => ({ name, hyp: '', why: '', rel: '', stats: '' })));
+    }
+  }
+
+  const regeneratePlan = async () => {
+    if (!uploadData) return;
+    setError(null);
+    setLoading(true);
+    try {
+      const result = await generateStatisticalPlan(uploadData, code);
+      applyPlanData(result);
+      onPlanReady?.(result);
+      // Save to Supabase (fail silently)
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('projects').upsert({
+          user_id: user.id,
+          title: uploadData.title,
+          plan_text: result.planText,
+          methods: result.methods,
+          pricing_key: result.pricing.key,
+          updated_at: new Date().toISOString(),
+        }).catch(() => {});
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUseForFree = async () => {
+    if (!uploadData) { onNext?.(null); return; }
+    setError(null);
+    setLoading(true);
+    try {
+      const resultsText = await executeAnalysis(uploadData, planText || uploadData.planText || '', code);
+      // Save to Supabase (fail silently)
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('projects').upsert({
+          user_id: user.id,
+          title: uploadData.title,
+          results_text: resultsText,
+          updated_at: new Date().toISOString(),
+        }).catch(() => {});
+      }
+      onNext?.(resultsText);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
 
   const updateVar = (idx, field, val) =>
     setVariables(vs => vs.map((v, i) => i === idx ? { ...v, [field]: val } : v));
 
+  const detectedTier = PRICING_TIERS.find(t => t.key === pricing.key) || PRICING_TIERS[1];
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+      {loading && <LoadingOverlay messageKey={planText ? 'aiExecutingAnalysis' : 'aiGeneratingPlan'}/>}
       <NavBar onSignOut={onSignOut}/>
       <main style={{ maxWidth: 1080, margin: '0 auto', padding: '28px 24px 140px' }}>
         <h1 className="h1">{t.planTitle}</h1>
@@ -116,10 +197,25 @@ export default function PlanScreen({ onNext, onBack, onSignOut }) {
             color: 'var(--success)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}><IconCheck size={14}/></span>
           <div style={{ fontSize: 13 }}>
-            <strong>{t.dataValid}</strong> — <span className="num">350</span> {t.rowsLabel}،{' '}
-            <span className="num">12</span> {t.varNameCol}، {t.noMissingValues}.
+            <strong>{t.dataValid}</strong>
+            {uploadData?.rows && <> — <span className="num">{uploadData.rows}</span> {t.rowsLabel}</>}
+            {uploadData?.cols && <>, <span className="num">{uploadData.cols}</span> {t.varNameCol}</>}
+            {' '}{t.noMissingValues}.
           </div>
         </div>
+
+        {/* AI-generated plan text */}
+        {planText && (
+          <div className="card" style={{ marginTop: 20, padding: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 12 }}>
+              <IconSpark size={14} style={{ color: 'var(--accent)', flexShrink: 0 }}/>
+              <strong style={{ color: 'var(--accent)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t.aiCommentary}</strong>
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--fg-primary)', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
+              {planText.replace(/\{methods:.*?\}/s, '').trim()}
+            </div>
+          </div>
+        )}
 
         {/* Variables table */}
         <section style={{ marginTop: 28 }}>
@@ -175,6 +271,15 @@ export default function PlanScreen({ onNext, onBack, onSignOut }) {
             {methods.map((m, i) => <MethodCard key={i} m={m} idx={i + 1}/>)}
           </div>
         </section>
+
+        {error && (
+          <div className="banner banner--error" style={{ marginTop: 20 }}>
+            <div><strong>{t.aiError}</strong> — {error}</div>
+            <button className="btn btn--secondary" onClick={regeneratePlan} style={{ whiteSpace: 'nowrap', fontSize: 12 }}>
+              {t.retryBtn}
+            </button>
+          </div>
+        )}
       </main>
 
       {/* Sticky payment footer */}
@@ -193,7 +298,7 @@ export default function PlanScreen({ onNext, onBack, onSignOut }) {
             padding: '2px 7px', borderRadius: 'var(--r-pill)', letterSpacing: '0.06em', fontFamily: 'var(--font-latin)',
           }}>BETA</span>
           <span style={{ color: 'var(--fg-muted)' }}>{t.betaBanner}</span>
-          <span className="num" style={{ color: 'var(--fg-secondary)', fontWeight: 600 }}>{DETECTED_PRICE}</span>
+          <span className="num" style={{ color: 'var(--fg-secondary)', fontWeight: 600 }}>{pricing.price}</span>
         </div>
 
         <div style={{ padding: '12px 24px' }}>
@@ -203,7 +308,7 @@ export default function PlanScreen({ onNext, onBack, onSignOut }) {
                 <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t.detectedLevel}</div>
                 <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                   {PRICING_TIERS.map(tier => {
-                    const isDetected = tier.key === DETECTED_TIER;
+                    const isDetected = tier.key === pricing.key;
                     return (
                       <div key={tier.key} style={{
                         display: 'inline-flex', alignItems: 'center', gap: 4,
@@ -226,7 +331,7 @@ export default function PlanScreen({ onNext, onBack, onSignOut }) {
               <div>
                 <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t.priceAfterBeta}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span className="num" style={{ fontSize: 16, fontWeight: 600, color: 'var(--fg-disabled)', textDecoration: 'line-through' }}>{DETECTED_PRICE}</span>
+                  <span className="num" style={{ fontSize: 16, fontWeight: 600, color: 'var(--fg-disabled)', textDecoration: 'line-through' }}>{pricing.price}</span>
                   <span className="num" style={{ fontSize: 16, fontWeight: 600, color: 'var(--success)' }}>$0.00</span>
                 </div>
               </div>
@@ -234,11 +339,16 @@ export default function PlanScreen({ onNext, onBack, onSignOut }) {
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
               <button className="btn btn--secondary" onClick={onBack}>{t.editPlanBtn}</button>
               <button className="btn btn--secondary" disabled style={{ opacity: 0.35, cursor: 'not-allowed' }}>
-                {t.payBtn} <span className="num">{DETECTED_PRICE}</span>
+                {t.payBtn} <span className="num">{pricing.price}</span>
               </button>
-              <button className="btn btn--primary btn--lg" onClick={onNext} style={{ gap: 8 }}>
+              <button className="btn btn--primary btn--lg" onClick={handleUseForFree} disabled={loading} style={{ gap: 8 }}>
                 <IconBolt size={15}/>
                 {t.useFreeBtn}
+                {pricing.rawPrice && (
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-numeric)' }}>
+                    ({t.normallyLabel} {pricing.rawPrice})
+                  </span>
+                )}
                 <span style={{
                   background: 'rgba(255,255,255,0.18)', fontSize: 10, fontWeight: 600,
                   padding: '1px 6px', borderRadius: 'var(--r-pill)',

@@ -21,6 +21,11 @@ export default function App() {
     return SCREEN_KEYS.includes(hash) ? hash : 'language';
   });
 
+  // projectData carries upload info, the AI plan, and the AI results across screens
+  const [projectData, setProjectData] = useState(null);
+
+  const updateProjectData = (patch) => setProjectData(prev => ({ ...prev, ...patch }));
+
   // Keep a ref so the session-change effect always reads the current screen
   // without adding it to its own dep array (which would re-run it on manual nav).
   const screenRef = useRef(screen);
@@ -74,9 +79,33 @@ export default function App() {
         <div style={{ paddingInlineStart: SIDEBAR_W }}>
           {screen === 'projects' && <ProjectsScreen onNew={go('upload')} onOpen={go('plan')} onSignOut={handleSignOut}/>}
           {/* key={code} remounts so translated initial state re-inits on language change */}
-          {screen === 'upload'   && <UploadScreen   key={code} onNext={go('plan')}    onBack={go('projects')} onSignOut={handleSignOut}/>}
-          {screen === 'plan'     && <PlanScreen     key={code} onNext={go('results')} onBack={go('upload')}   onSignOut={handleSignOut}/>}
-          {screen === 'results'  && <ResultsScreen  key={code} onBack={go('plan')}                            onSignOut={handleSignOut}/>}
+          {screen === 'upload' && (
+            <UploadScreen
+              key={code}
+              onNext={(data) => { updateProjectData({ uploadData: data }); setScreen('plan'); }}
+              onBack={go('projects')}
+              onSignOut={handleSignOut}
+            />
+          )}
+          {screen === 'plan' && (
+            <PlanScreen
+              key={code}
+              uploadData={projectData?.uploadData}
+              planData={projectData?.plan}
+              onPlanReady={(plan) => updateProjectData({ plan })}
+              onNext={(results) => { updateProjectData({ results }); setScreen('results'); }}
+              onBack={go('upload')}
+              onSignOut={handleSignOut}
+            />
+          )}
+          {screen === 'results' && (
+            <ResultsScreen
+              key={code}
+              resultsText={projectData?.results}
+              onBack={go('plan')}
+              onSignOut={handleSignOut}
+            />
+          )}
         </div>
       )}
     </div>
