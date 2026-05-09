@@ -235,9 +235,10 @@ html, body {
   color: var(--fg-muted);
   border: 1px solid var(--border);
 }
-.chip--basic    { color: var(--success); background: var(--success-tint); border-color: rgba(16,185,129,0.25); }
-.chip--medium   { color: var(--info);    background: var(--info-tint);    border-color: rgba(59,130,246,0.25); }
-.chip--advanced { color: var(--accent);  background: var(--accent-tint);  border-color: rgba(108,99,255,0.25); }
+.chip--basic         { color: var(--success); background: var(--success-tint); border-color: rgba(16,185,129,0.25); }
+.chip--medium        { color: var(--info);    background: var(--info-tint);    border-color: rgba(59,130,246,0.25); }
+.chip--advanced      { color: var(--accent);  background: var(--accent-tint);  border-color: rgba(108,99,255,0.25); }
+.chip--professional  { color: #d97706;        background: rgba(217,119,6,0.09); border-color: rgba(217,119,6,0.25); }
 .chip--success  { color: var(--success); background: var(--success-tint); border-color: rgba(16,185,129,0.25); }
 .chip--warning  { color: var(--warning); background: var(--warning-tint); border-color: rgba(245,158,11,0.25); }
 .chip--error    { color: var(--error);   background: var(--error-tint);   border-color: rgba(239,68,68,0.25); }

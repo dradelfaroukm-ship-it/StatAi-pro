@@ -45,6 +45,7 @@ const ru = {
   levelBasic: 'Базовый',
   levelMedium: 'Средний',
   levelAdvanced: 'Продвинутый',
+  levelProfessional: 'Профессиональный',
   statusDone: 'Завершён',
   statusRunning: 'Выполняется',
   statusDraft: 'Черновик',

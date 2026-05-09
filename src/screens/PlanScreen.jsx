@@ -68,6 +68,17 @@ const MethodCard = ({ m, idx }) => {
 const thStyle = { textAlign: 'start', padding: '11px 16px', fontSize: 12, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' };
 const tdStyle = { textAlign: 'start', padding: '10px 16px', fontSize: 13, color: 'var(--fg-primary)', borderTop: '1px solid var(--border-subtle)' };
 
+// Pricing tiers — highest method complexity in the plan drives the price.
+// Demo plan (descriptive stats + t-test + multiple regression) → Intermediate.
+const PRICING_TIERS = [
+  { key: 'basic',        labelKey: 'levelBasic',        price: '$50',   hex: '#10b981' },
+  { key: 'intermediate', labelKey: 'levelMedium',        price: '$100',  hex: '#3b82f6' },
+  { key: 'advanced',     labelKey: 'levelAdvanced',      price: '$175',  hex: '#6c63ff' },
+  { key: 'professional', labelKey: 'levelProfessional',  price: '$275',  hex: '#d97706' },
+];
+const DETECTED_TIER = 'intermediate'; // multiple regression → levels 4-6
+const DETECTED_PRICE = '$100.00';
+
 export default function PlanScreen({ onNext, onBack, onSignOut }) {
   const { t } = useLanguage();
 
@@ -182,24 +193,40 @@ export default function PlanScreen({ onNext, onBack, onSignOut }) {
             padding: '2px 7px', borderRadius: 'var(--r-pill)', letterSpacing: '0.06em', fontFamily: 'var(--font-latin)',
           }}>BETA</span>
           <span style={{ color: 'var(--fg-muted)' }}>{t.betaBanner}</span>
-          <span className="num" style={{ color: 'var(--fg-secondary)', fontWeight: 600 }}>$100.00</span>
+          <span className="num" style={{ color: 'var(--fg-secondary)', fontWeight: 600 }}>{DETECTED_PRICE}</span>
         </div>
 
         <div style={{ padding: '12px 24px' }}>
           <div style={{ maxWidth: 1080, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 20, flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20, flex: 1, flexWrap: 'wrap' }}>
               <div>
-                <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t.detectedLevel}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--info)', display: 'inline-block' }}/>
-                  <strong style={{ fontSize: 14 }}>{t.levelMediumLabel}</strong>
+                <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t.detectedLevel}</div>
+                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                  {PRICING_TIERS.map(tier => {
+                    const isDetected = tier.key === DETECTED_TIER;
+                    return (
+                      <div key={tier.key} style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 4,
+                        padding: '3px 9px', borderRadius: 'var(--r-pill)', fontSize: 11,
+                        background: isDetected ? `${tier.hex}1a` : 'transparent',
+                        border: `1px solid ${isDetected ? `${tier.hex}55` : 'var(--border)'}`,
+                        color: isDetected ? tier.hex : 'var(--fg-muted)',
+                        fontWeight: isDetected ? 600 : 400,
+                        opacity: isDetected ? 1 : 0.6,
+                      }}>
+                        {isDetected && <span style={{ width: 5, height: 5, borderRadius: '50%', background: tier.hex, display: 'inline-block', flexShrink: 0 }}/>}
+                        {t[tier.labelKey]}
+                        <span className="num" style={{ fontSize: 10 }}> {tier.price}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-              <div style={{ width: 1, height: 28, background: 'var(--border)' }}/>
+              <div style={{ width: 1, height: 36, background: 'var(--border)', flexShrink: 0 }}/>
               <div>
                 <div style={{ fontSize: 11, color: 'var(--fg-muted)', marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t.priceAfterBeta}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span className="num" style={{ fontSize: 16, fontWeight: 600, color: 'var(--fg-disabled)', textDecoration: 'line-through' }}>$100.00</span>
+                  <span className="num" style={{ fontSize: 16, fontWeight: 600, color: 'var(--fg-disabled)', textDecoration: 'line-through' }}>{DETECTED_PRICE}</span>
                   <span className="num" style={{ fontSize: 16, fontWeight: 600, color: 'var(--success)' }}>$0.00</span>
                 </div>
               </div>
@@ -207,7 +234,7 @@ export default function PlanScreen({ onNext, onBack, onSignOut }) {
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
               <button className="btn btn--secondary" onClick={onBack}>{t.editPlanBtn}</button>
               <button className="btn btn--secondary" disabled style={{ opacity: 0.35, cursor: 'not-allowed' }}>
-                {t.payBtn} <span className="num">$100.00</span>
+                {t.payBtn} <span className="num">{DETECTED_PRICE}</span>
               </button>
               <button className="btn btn--primary btn--lg" onClick={onNext} style={{ gap: 8 }}>
                 <IconBolt size={15}/>

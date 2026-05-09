@@ -13,7 +13,7 @@ const PROJECT_META = [
   { id: 6, key: 'proj6', level: 'medium',   date: '2026-03-22', status: 'running' },
 ];
 
-const LEVEL_DOT = { basic: 'var(--success)', medium: 'var(--info)', advanced: 'var(--accent)' };
+const LEVEL_DOT = { basic: 'var(--success)', medium: 'var(--info)', advanced: 'var(--accent)', professional: '#d97706' };
 
 const StatusChip = ({ status }) => {
   const { t } = useLanguage();
@@ -33,7 +33,7 @@ const StatusChip = ({ status }) => {
 
 const LevelChip = ({ level }) => {
   const { t } = useLanguage();
-  const label = { basic: t.levelBasic, medium: t.levelMedium, advanced: t.levelAdvanced };
+  const label = { basic: t.levelBasic, medium: t.levelMedium, advanced: t.levelAdvanced, professional: t.levelProfessional };
   return (
     <span className={`chip chip--${level}`}>
       <span style={{ width: 5, height: 5, borderRadius: '50%', background: LEVEL_DOT[level], display: 'inline-block', flexShrink: 0 }}/>
