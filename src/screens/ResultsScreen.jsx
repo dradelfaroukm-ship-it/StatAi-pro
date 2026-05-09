@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NavBar, StepIndicator } from '../components/Common';
 import { IconWord, IconPdf, IconCopy, IconCheck, IconX, IconSpark, IconArrowL } from '../components/Icons';
 import { useLanguage } from '../context/LanguageContext';
+import { buildPlainText, exportWord, exportPdf } from '../lib/exportUtils';
 
 const BarChart = () => {
   const data = [{ l:'1.0–2.0',v:8},{l:'2.0–2.5',v:32},{l:'2.5–3.0',v:78},{l:'3.0–3.5',v:142},{l:'3.5–4.0',v:90}];
@@ -104,9 +105,11 @@ const AIResultsView = ({ text }) => {
   );
 };
 
-export default function ResultsScreen({ resultsText, onBack, onSignOut }) {
-  const { t } = useLanguage();
+export default function ResultsScreen({ resultsText, projectTitle, onBack, onSignOut }) {
+  const { t, code } = useLanguage();
   const [approved, setApproved] = useState(false);
+  const [copied, setCopied]     = useState(false);
+  const [exporting, setExporting] = useState(null); // 'word' | 'pdf' | null
 
   const descTable = [
     { v: t.rdVar1, n: 350, mean: 21.4,  sd: 1.83, min: 18,  max: 27  },
@@ -127,6 +130,25 @@ export default function ResultsScreen({ resultsText, onBack, onSignOut }) {
     { id: 2, text: t.hyp2Text, accepted: true  },
   ];
 
+  const exportArgs = { t, langCode: code, projectTitle, resultsText, descTable, regressionTable, hypotheses };
+
+  const handleCopy = async () => {
+    const text = buildPlainText(exportArgs);
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2200);
+  };
+
+  const handleExportWord = async () => {
+    setExporting('word');
+    try { await exportWord(exportArgs); } finally { setExporting(null); }
+  };
+
+  const handleExportPdf = async () => {
+    setExporting('pdf');
+    try { await exportPdf(exportArgs); } finally { setExporting(null); }
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
       <NavBar onSignOut={onSignOut}/>
@@ -137,9 +159,32 @@ export default function ResultsScreen({ resultsText, onBack, onSignOut }) {
             <div style={{ color:'var(--fg-muted)', marginTop:4, fontSize:13 }}>{t.resultsSubtitle}</div>
           </div>
           <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
-            <button className="btn btn--secondary"><IconWord size={14}/> {t.exportWord}</button>
-            <button className="btn btn--secondary"><IconPdf size={14}/> {t.exportPdf}</button>
-            <button className="btn btn--secondary"><IconCopy size={14}/> {t.copyBtn}</button>
+            <button
+              className="btn btn--secondary"
+              onClick={handleExportWord}
+              disabled={!!exporting}
+              style={{ opacity: exporting === 'pdf' ? 0.5 : 1 }}
+            >
+              <IconWord size={14}/>
+              {exporting === 'word' ? '…' : t.exportWord}
+            </button>
+            <button
+              className="btn btn--secondary"
+              onClick={handleExportPdf}
+              disabled={!!exporting}
+              style={{ opacity: exporting === 'word' ? 0.5 : 1 }}
+            >
+              <IconPdf size={14}/>
+              {exporting === 'pdf' ? '…' : t.exportPdf}
+            </button>
+            <button
+              className="btn btn--secondary"
+              onClick={handleCopy}
+              style={{ minWidth: 80 }}
+            >
+              {copied ? <IconCheck size={14}/> : <IconCopy size={14}/>}
+              {copied ? t.copied : t.copyBtn}
+            </button>
           </div>
         </div>
 

@@ -102,6 +102,7 @@ export default function App() {
             <ResultsScreen
               key={code}
               resultsText={projectData?.results}
+              projectTitle={projectData?.uploadData?.title}
               onBack={go('plan')}
               onSignOut={handleSignOut}
             />

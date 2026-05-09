@@ -91,8 +91,8 @@ const ru = {
   // Results
   resultsTitle: 'Результаты анализа',
   resultsSubtitle: 'Влияние электронного обучения на академическую успеваемость',
-  exportWord: 'Экспорт в Word',
-  exportPdf: 'Экспорт в PDF',
+  exportWord: 'Экспорт Word',
+  exportPdf: 'Экспорт PDF',
   copyBtn: 'Копировать',
   descStats: 'Описательная статистика',
   regression: 'Множественный регрессионный анализ',
@@ -172,6 +172,7 @@ const ru = {
   aiErrorMsg: 'Произошла ошибка при подключении к ИИ-ассистенту. Пожалуйста, попробуйте снова.',
   retryBtn: 'Повторить',
   normallyLabel: 'Обычно',
+  copied: 'Скопировано!',
 };
 
 export default ru;

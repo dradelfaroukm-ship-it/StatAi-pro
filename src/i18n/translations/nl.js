@@ -172,6 +172,7 @@ const nl = {
   aiErrorMsg: 'Er is een fout opgetreden bij het verbinden met de AI-assistent. Probeer het opnieuw.',
   retryBtn: 'Opnieuw proberen',
   normallyLabel: 'Normaal',
+  copied: 'Gekopieerd!',
 };
 
 export default nl;
