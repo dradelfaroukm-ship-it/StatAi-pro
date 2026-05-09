@@ -1,20 +1,26 @@
 const MODEL = 'claude-opus-4-7';
 const API_ENDPOINT = '/api/claude';
 
-const LANG_NAMES = {
-  ar: 'Arabic',
-  en: 'English',
-  fr: 'French',
-  es: 'Spanish',
-  de: 'German',
-  pt: 'Portuguese',
-  'zh-CN': 'Simplified Chinese',
-  hi: 'Hindi',
-  tr: 'Turkish',
-  fa: 'Persian (Farsi)',
-  ru: 'Russian',
-  nl: 'Dutch',
+const languageMap = {
+  ar: 'Arabic (Modern Standard Arabic — formal academic register only, never use Egyptian or any other dialect)',
+  en: 'English (formal academic register)',
+  fr: 'French (registre académique formel)',
+  es: 'Spanish (registro académico formal)',
+  de: 'German (formelles akademisches Register)',
+  pt: 'Portuguese (registro acadêmico formal)',
+  zh: 'Chinese Simplified (正式学术语体)',
+  hi: 'Hindi (औपचारिक शैक्षणिक भाषा)',
+  fa: 'Persian/Farsi (زبان رسمی دانشگاهی)',
+  tr: 'Turkish (resmi akademik dil)',
+  nl: 'Dutch (formeel academisch register)',
+  ru: 'Russian (официальный академический стиль)',
 };
+
+function getLanguageName(langCode) {
+  // zh-CN maps to zh in the language map
+  const key = langCode === 'zh-CN' ? 'zh' : langCode;
+  return languageMap[key] ?? languageMap.en;
+}
 
 const PLAN_SYSTEM_PROMPT = `You are an expert academic statistician and research methodologist with deep knowledge of quantitative research methods, statistical analysis, and academic publishing standards.
 
@@ -154,7 +160,7 @@ async function callClaude(systemPrompt, userContent) {
 }
 
 export async function generateStatisticalPlan(uploadData, langCode) {
-  const language = LANG_NAMES[langCode] ?? 'English';
+  const language = getLanguageName(langCode);
   const system = PLAN_SYSTEM_PROMPT.replaceAll('{language}', language);
 
   const userContent = [
@@ -173,7 +179,7 @@ export async function generateStatisticalPlan(uploadData, langCode) {
 }
 
 export async function executeAnalysis(uploadData, planText, langCode) {
-  const language = LANG_NAMES[langCode] ?? 'English';
+  const language = getLanguageName(langCode);
   const system = ANALYSIS_SYSTEM_PROMPT.replaceAll('{language}', language);
 
   const userContent = [
