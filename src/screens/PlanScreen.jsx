@@ -96,13 +96,14 @@ const MethodCard = ({ m, idx }) => {
 export default function PlanScreen({ uploadData, planData, onPlanReady, onNext, onBack, onSignOut }) {
   const { t, code } = useLanguage();
 
-  const [variables, setVariables] = useState(() => FALLBACK_VARS(t));
-  const [methods, setMethods]     = useState(() => FALLBACK_METHODS(t));
-  const [pricing, setPricing]     = useState(() => detectAnalysisLevel([]));
-  const [planText, setPlanText]   = useState(null);
-  const [editingIdx, setEditingIdx] = useState(null);
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState(null);
+  const [variables, setVariables]         = useState(() => FALLBACK_VARS(t));
+  const [methods, setMethods]             = useState(() => FALLBACK_METHODS(t));
+  const [pricing, setPricing]             = useState(() => detectAnalysisLevel([]));
+  const [planText, setPlanText]           = useState(null);
+  const [planStructured, setPlanStructured] = useState(null);
+  const [editingIdx, setEditingIdx]       = useState(null);
+  const [loading, setLoading]             = useState(false);
+  const [error, setError]                 = useState(null);
 
   // If uploadData came with a plan already (from UploadScreen Call 1), use it
   useEffect(() => {
@@ -121,6 +122,7 @@ export default function PlanScreen({ uploadData, planData, onPlanReady, onNext, 
   function applyPlanData(pd) {
     if (pd.planText) setPlanText(pd.planText);
     if (pd.pricing)  setPricing(pd.pricing);
+    if (pd.structured) setPlanStructured(pd.structured);
     if (pd.methods?.length) {
       setMethods(pd.methods.map((name, i) => ({ name, hyp: '', why: '', rel: '', stats: '' })));
     }
@@ -183,7 +185,7 @@ export default function PlanScreen({ uploadData, planData, onPlanReady, onNext, 
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      {loading && <LoadingOverlay messageKey={planText ? 'aiExecutingAnalysis' : 'aiGeneratingPlan'}/>}
+      {loading && <LoadingOverlay messageKey={planText ? 'aiExecutingAnalysis' : 'aiAnalyzingDataset'}/>}
       <NavBar onSignOut={onSignOut}/>
       <main style={{ maxWidth: 1080, margin: '0 auto', padding: '28px 24px 140px' }}>
         <h1 className="h1">{t.planTitle}</h1>
@@ -203,6 +205,24 @@ export default function PlanScreen({ uploadData, planData, onPlanReady, onNext, 
             {' '}{t.noMissingValues}.
           </div>
         </div>
+
+        {/* Python data quality output */}
+        {planStructured?.blocks?.some(b => b.type === 'output') && (
+          <div className="card" style={{ marginTop: 20, padding: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 12 }}>
+              <IconSpark size={14} style={{ color: 'var(--success)', flexShrink: 0 }}/>
+              <strong style={{ color: 'var(--success)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t.dataValid} — Python Analysis</strong>
+            </div>
+            {planStructured.blocks.filter(b => b.type === 'output').map((b, i) => (
+              <pre key={i} style={{
+                margin: 0, fontFamily: 'var(--font-mono, monospace)', fontSize: 12,
+                color: '#4ade80', background: 'rgba(16,185,129,0.06)',
+                border: '1px solid rgba(16,185,129,0.15)', borderRadius: 8,
+                padding: '12px 14px', overflowX: 'auto', whiteSpace: 'pre-wrap', lineHeight: 1.6,
+              }}>{b.content}</pre>
+            ))}
+          </div>
+        )}
 
         {/* AI-generated plan text */}
         {planText && (

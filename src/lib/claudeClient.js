@@ -163,19 +163,49 @@ export async function generateStatisticalPlan(uploadData, langCode) {
   const language = getLanguageName(langCode);
   const system = PLAN_SYSTEM_PROMPT.replaceAll('{language}', language);
 
-  const userContent = [
+  const userMessage = [
+    'Follow these steps in order:',
+    '',
+    'STEP 1 — Run Python code to analyze the dataset:',
+    '- Use pandas to load and inspect the data (shape, dtypes, missing values, describe())',
+    '- Compute value counts for categorical columns',
+    '- Report all findings as Python print output so they appear in your response',
+    '',
+    'STEP 2 — Based on what Python reveals, generate the full statistical analysis plan following your system prompt instructions. Your plan must reflect the actual data characteristics discovered.',
+    '',
     `Research Title: ${uploadData.title || 'Not specified'}`,
     `Research Hypotheses: ${uploadData.hypotheses || 'Not specified'}`,
     `Research Goals: ${uploadData.goals || 'Not specified'}`,
-    `Dataset: ${uploadData.rows || 'Unknown'} rows, ${uploadData.cols || 'Unknown'} columns`,
-    uploadData.fileContent ? `\nDataset sample:\n${uploadData.fileContent}` : '',
+    `Dataset dimensions: ${uploadData.rows || 'Unknown'} rows, ${uploadData.cols || 'Unknown'} columns`,
+    uploadData.fileContent ? `\nDataset (CSV):\n${uploadData.fileContent}` : '',
+    '',
+    'STEP 3 — End your response with the JSON methods block:',
+    '{methods: [\'method1\', \'method2\', ...]}',
   ].join('\n');
 
-  const planText = await callClaude(system, userContent);
+  const response = await fetch('/api/plan', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ system, userMessage }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error || `API error ${response.status}`);
+  }
+
+  const data = await response.json();
+  const structured = parseCodeExecutionResponse(data.content ?? []);
+
+  const planText = structured.blocks
+    .filter(b => b.type === 'text')
+    .map(b => b.content)
+    .join('\n\n');
+
   const methods = extractMethods(planText);
   const pricing = detectAnalysisLevel(methods);
 
-  return { planText, methods, pricing };
+  return { planText, methods, pricing, structured };
 }
 
 export async function executeAnalysis(uploadData, planText, langCode) {

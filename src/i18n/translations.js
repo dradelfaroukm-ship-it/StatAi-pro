@@ -173,6 +173,7 @@ const ar = {
   roleDependent: 'تابع',
   roleMediator: 'وسيط',
   // AI loading / error states
+  aiAnalyzingDataset: 'جاري تحليل البيانات وإنشاء الخطة الإحصائية…',
   aiGeneratingPlan: 'جاري إنشاء الخطة الإحصائية…',
   aiExecutingAnalysis: 'جاري تشغيل الحسابات الإحصائية…',
   aiError: 'خطأ في المساعد الذكي',
@@ -337,6 +338,7 @@ const en = {
   roleDependent: 'Dependent',
   roleMediator: 'Mediator',
   // AI loading / error states
+  aiAnalyzingDataset: 'Analyzing dataset and generating statistical plan…',
   aiGeneratingPlan: 'Generating statistical plan…',
   aiExecutingAnalysis: 'Running statistical computations…',
   aiError: 'AI Error',
@@ -500,6 +502,7 @@ const fr = {
   hyp2Text: "Les heures d'utilisation de la plateforme et la motivation d'apprentissage ont un effet significatif sur la moyenne générale",
   descCommentary: "La moyenne du GPA de l'échantillon est de 3,12 (ET = 0,46), indiquant une homogénéité relative des performances académiques. Plus de 66 % des participants se situent dans la fourchette 3,0–4,0, ce qui suggère un échantillon de haut niveau satisfaisant les conditions de l'analyse inférentielle.",
   regCommentary: "Le modèle de régression explique 38,7 % de la variance du GPA (R² = 0,387), ce qui est acceptable selon les standards de la recherche éducative et psychologique. Les heures d'utilisation de la plateforme constituent le prédicteur le plus fort (β = 0,412), suivies par la motivation d'apprentissage (β = 0,298). Le niveau académique n'a pas atteint le seuil de signification statistique (p = 0,082).",
+  aiAnalyzingDataset: 'Analyse du jeu de données et génération du plan statistique…',
   copied: 'Copié !',
 };
 
@@ -657,6 +660,7 @@ const es = {
   hyp2Text: 'Las horas de uso de la plataforma y la motivación de aprendizaje tienen un efecto significativo en el GPA',
   descCommentary: 'La media del GPA de la muestra es 3,12 (DT = 0,46), lo que indica homogeneidad relativa en el rendimiento académico. Más del 66% de los participantes se sitúan en el rango 3,0–4,0, lo que sugiere una muestra de alto rendimiento que satisface los supuestos del análisis inferencial.',
   regCommentary: 'El modelo de regresión explica el 38,7% de la varianza del GPA (R² = 0,387), lo cual es aceptable según los estándares de investigación educativa y psicológica. Las horas de uso de la plataforma son el predictor más fuerte (β = 0,412), seguido por la motivación de aprendizaje (β = 0,298). El nivel académico no alcanzó significación estadística (p = 0,082).',
+  aiAnalyzingDataset: 'Analizando el conjunto de datos y generando el plan estadístico…',
   copied: '¡Copiado!',
 };
 
@@ -814,6 +818,7 @@ const de = {
   hyp2Text: 'Plattformnutzungsstunden und Lernmotivation haben einen signifikanten Einfluss auf den GPA',
   descCommentary: 'Der mittlere GPA der Stichprobe beträgt 3,12 (SD = 0,46), was auf eine relative Homogenität der akademischen Leistung hindeutet. Über 66 % der Teilnehmenden liegen im Bereich 3,0–4,0, was auf eine leistungsstarke Stichprobe hinweist, die die Voraussetzungen für Inferenzanalysen erfüllt.',
   regCommentary: 'Das Regressionsmodell erklärt 38,7 % der GPA-Varianz (R² = 0,387), was nach bildungs- und psychologischen Forschungsstandards akzeptabel ist. Plattformnutzungsstunden sind der stärkste Prädiktor (β = 0,412), gefolgt von Lernmotivation (β = 0,298). Das akademische Niveau erreichte keine statistische Signifikanz (p = 0,082).',
+  aiAnalyzingDataset: 'Datensatz analysieren und statistischen Plan erstellen…',
   copied: 'Kopiert!',
 };
 
@@ -971,6 +976,7 @@ const pt = {
   hyp2Text: 'As horas de uso da plataforma e a motivação de aprendizagem têm efeito significativo no GPA',
   descCommentary: 'A média do GPA da amostra é 3,12 (DP = 0,46), indicando homogeneidade relativa no desempenho acadêmico. Mais de 66% dos participantes estão na faixa 3,0–4,0, sugerindo uma amostra de alto desempenho que satisfaz os pressupostos da análise inferencial.',
   regCommentary: 'O modelo de regressão explica 38,7% da variância do GPA (R² = 0,387), o que é aceitável pelos padrões de pesquisa educacional e psicológica. As horas de uso da plataforma são o preditor mais forte (β = 0,412), seguidas pela motivação de aprendizagem (β = 0,298). O nível acadêmico não atingiu significância estatística (p = 0,082).',
+  aiAnalyzingDataset: 'Analisando o conjunto de dados e gerando o plano estatístico…',
   copied: 'Copiado!',
 };
 
@@ -1128,6 +1134,7 @@ const zhCN = {
   hyp2Text: '平台使用时间和学习动机对绩点有显著影响',
   descCommentary: '样本GPA均值为3.12（SD = 0.46），表明学业成绩相对均匀。超过66%的参与者处于3.0–4.0区间，说明样本整体成绩较高，满足推断性分析的假设条件。',
   regCommentary: '回归模型解释了38.7%的GPA方差（R² = 0.387），在教育和心理学研究标准中属于可接受水平。平台使用时间是最强预测因子（β = 0.412），其次是学习动机（β = 0.298）。学业水平未达到统计显著性（p = 0.082）。',
+  aiAnalyzingDataset: '正在分析数据集并生成统计计划…',
   copied: '已复制!',
 };
 
@@ -1285,6 +1292,7 @@ const hi = {
   hyp2Text: 'प्लेटफॉर्म उपयोग के घंटे और सीखने की प्रेरणा का GPA पर महत्वपूर्ण प्रभाव है',
   descCommentary: 'नमूने का औसत GPA 3.12 (SD = 0.46) है, जो शैक्षणिक प्रदर्शन में सापेक्ष समरूपता का संकेत देता है। 66% से अधिक प्रतिभागी 3.0–4.0 की सीमा में हैं, जो एक उच्च प्रदर्शन करने वाले नमूने का सुझाव देता है जो अनुमानात्मक विश्लेषण की शर्तों को पूरा करता है।',
   regCommentary: 'प्रतिगमन मॉडल GPA की 38.7% विचरण (R² = 0.387) को समझाता है, जो शैक्षणिक और मनोवैज्ञानिक अनुसंधान मानकों के अनुसार स्वीकार्य है। प्लेटफॉर्म उपयोग के घंटे सबसे मजबूत पूर्वसूचक हैं (β = 0.412), इसके बाद सीखने की प्रेरणा (β = 0.298)। शैक्षणिक स्तर सांख्यिकीय महत्व तक नहीं पहुंचा (p = 0.082)।',
+  aiAnalyzingDataset: 'डेटासेट का विश्लेषण और सांख्यिकीय योजना तैयार की जा रही है…',
   copied: 'कॉपी हो गया!',
 };
 
@@ -1442,6 +1450,7 @@ const tr = {
   hyp2Text: 'Platform kullanım saatleri ve öğrenme motivasyonu not ortalaması üzerinde anlamlı bir etkiye sahiptir',
   descCommentary: "Örneklemin GPA ortalaması 3,12 (SS = 0,46) olup bu, akademik performansta görece homojenliğe işaret etmektedir. Katılımcıların %66'sından fazlası 3,0–4,0 aralığında yer almakta; bu durum, çıkarımsal analiz koşullarını karşılayan yüksek performanslı bir örnekleme işaret etmektedir.",
   regCommentary: "Regresyon modeli, GPA varyansının %38,7'sini açıklamaktadır (R² = 0,387); bu, eğitim ve psikoloji araştırmaları standartlarına göre kabul edilebilir düzeydedir. Platform kullanım saatleri en güçlü yordayıcıdır (β = 0,412), bunu öğrenme motivasyonu izlemektedir (β = 0,298). Akademik düzey istatistiksel anlamlılık eşiğine ulaşamamıştır (p = 0,082).",
+  aiAnalyzingDataset: 'Veri kümesi analiz ediliyor ve istatistik planı oluşturuluyor…',
   copied: 'Kopyalandı!',
 };
 
@@ -1599,6 +1608,7 @@ const fa = {
   hyp2Text: 'ساعات استفاده از پلتفرم و انگیزه یادگیری تأثیر معنادار بر معدل کل دارند',
   descCommentary: 'میانگین GPA نمونه ۳.۱۲ (انحراف معیار = ۰.۴۶) است که نشان‌دهنده همگنی نسبی در عملکرد تحصیلی است. بیش از ۶۶٪ شرکت‌کنندگان در محدوده ۳.۰–۴.۰ قرار دارند و این نمونه شرایط تحلیل استنباطی را برآورده می‌کند.',
   regCommentary: 'مدل رگرسیون ۳۸.۷٪ از واریانس GPA را توضیح می‌دهد (R² = ۰.۳۸۷) که بر اساس معیارهای پژوهش‌های آموزشی و روان‌شناختی قابل قبول است. ساعات استفاده از پلتفرم قوی‌ترین پیش‌بین است (β = ۰.۴۱۲) و انگیزه یادگیری در رتبه دوم قرار دارد (β = ۰.۲۹۸). سطح تحصیلی به معناداری آماری نرسید (p = ۰.۰۸۲).',
+  aiAnalyzingDataset: 'در حال تحلیل مجموعه داده و ایجاد طرح آماری…',
   copied: 'کپی شد!',
 };
 
