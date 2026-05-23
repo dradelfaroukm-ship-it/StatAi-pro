@@ -174,7 +174,7 @@ const ar = {
   roleMediator: 'وسيط',
   // AI loading / error states
   aiGeneratingPlan: 'جاري إنشاء الخطة الإحصائية…',
-  aiExecutingAnalysis: 'جاري تنفيذ التحليل الإحصائي…',
+  aiExecutingAnalysis: 'جاري تشغيل الحسابات الإحصائية…',
   aiError: 'خطأ في المساعد الذكي',
   aiErrorMsg: 'حدث خطأ أثناء الاتصال بالمساعد الذكي. يرجى المحاولة مرة أخرى.',
   retryBtn: 'إعادة المحاولة',
@@ -338,7 +338,7 @@ const en = {
   roleMediator: 'Mediator',
   // AI loading / error states
   aiGeneratingPlan: 'Generating statistical plan…',
-  aiExecutingAnalysis: 'Executing statistical analysis…',
+  aiExecutingAnalysis: 'Running statistical computations…',
   aiError: 'AI Error',
   aiErrorMsg: 'An error occurred while connecting to the AI assistant. Please try again.',
   retryBtn: 'Retry',

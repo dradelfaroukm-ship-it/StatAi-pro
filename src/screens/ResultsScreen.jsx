@@ -105,6 +105,73 @@ const AIResultsView = ({ text }) => {
   );
 };
 
+const CodeBlock = ({ code }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ marginTop: 12, borderRadius: 8, border: '1px solid var(--border-subtle)', overflow: 'hidden' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: '100%', background: 'var(--bg-secondary)', border: 'none', cursor: 'pointer',
+          padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8,
+          color: 'var(--fg-muted)', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase',
+        }}
+      >
+        <span style={{ fontFamily: 'var(--font-numeric)', fontSize: 14, lineHeight: 1 }}>{open ? '▾' : '▸'}</span>
+        Python Code
+      </button>
+      {open && (
+        <pre style={{
+          margin: 0, padding: '14px 16px', fontSize: 12, lineHeight: 1.6,
+          color: '#a5b4fc', background: '#0d1117', overflowX: 'auto', direction: 'ltr',
+        }}>{code}</pre>
+      )}
+    </div>
+  );
+};
+
+const OutputBlock = ({ output }) => (
+  <div style={{
+    marginTop: 12, borderRadius: 8, border: '1px solid rgba(16,185,129,0.2)',
+    background: 'rgba(16,185,129,0.04)', overflow: 'hidden',
+  }}>
+    <div style={{
+      padding: '6px 14px', background: 'rgba(16,185,129,0.08)',
+      fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--success)',
+    }}>
+      Computed Output
+    </div>
+    <pre style={{
+      margin: 0, padding: '14px 16px', fontSize: 13, lineHeight: 1.7,
+      color: 'var(--fg-primary)', overflowX: 'auto', direction: 'ltr', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+    }}>{output}</pre>
+  </div>
+);
+
+const StructuredResultsView = ({ data }) => {
+  const { t } = useLanguage();
+  return (
+    <div style={{ marginTop: 8 }}>
+      {data.blocks.map((block, i) => {
+        if (block.type === 'text') {
+          return (
+            <div key={i} className="card" style={{ padding: 24, marginTop: i === 0 ? 0 : 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 12 }}>
+                <IconSpark size={14} style={{ color: 'var(--accent)', flexShrink: 0 }}/>
+                <strong style={{ color: 'var(--accent)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t.aiCommentary}</strong>
+              </div>
+              <div style={{ fontSize: 14, color: 'var(--fg-primary)', lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>{block.content}</div>
+            </div>
+          );
+        }
+        if (block.type === 'code') return <CodeBlock key={i} code={block.content}/>;
+        if (block.type === 'output') return <OutputBlock key={i} output={block.content}/>;
+        return null;
+      })}
+    </div>
+  );
+};
+
 export default function ResultsScreen({ resultsText, projectTitle, onBack, onSignOut }) {
   const { t, code } = useLanguage();
   const [approved, setApproved] = useState(false);
@@ -130,7 +197,11 @@ export default function ResultsScreen({ resultsText, projectTitle, onBack, onSig
     { id: 2, text: t.hyp2Text, accepted: true  },
   ];
 
-  const exportArgs = { t, langCode: code, projectTitle, resultsText, descTable, regressionTable, hypotheses };
+  const resultsPlainText = resultsText?.structured
+    ? resultsText.blocks.filter(b => b.type !== 'code').map(b => b.content).join('\n\n')
+    : resultsText;
+
+  const exportArgs = { t, langCode: code, projectTitle, resultsText: resultsPlainText, descTable, regressionTable, hypotheses };
 
   const handleCopy = async () => {
     const text = buildPlainText(exportArgs);
@@ -191,7 +262,9 @@ export default function ResultsScreen({ resultsText, projectTitle, onBack, onSig
         <StepIndicator current={4} completed={[1,2,3]}/>
 
         {/* AI-generated results take precedence; fall back to demo tables */}
-        {resultsText ? (
+        {resultsText?.structured ? (
+          <StructuredResultsView data={resultsText}/>
+        ) : resultsText ? (
           <AIResultsView text={resultsText}/>
         ) : (
           <>

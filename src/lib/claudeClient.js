@@ -182,12 +182,76 @@ export async function executeAnalysis(uploadData, planText, langCode) {
   const language = getLanguageName(langCode);
   const system = ANALYSIS_SYSTEM_PROMPT.replaceAll('{language}', language);
 
-  const userContent = [
-    `Approved Statistical Analysis Plan:\n${planText}`,
-    uploadData.fileContent ? `\nDataset sample:\n${uploadData.fileContent}` : '',
-    `Research Title: ${uploadData.title || 'Not specified'}`,
-    `Research Hypotheses: ${uploadData.hypotheses || 'Not specified'}`,
-  ].join('\n');
+  const userMessage = `Execute the following statistical analysis plan on the provided dataset.
 
-  return callClaude(system, userContent);
+Dataset (${uploadData.fileName || 'data'}):
+${uploadData.fileContent || 'No dataset provided — use plausible demo values for illustration.'}
+
+Approved Statistical Analysis Plan:
+${planText}
+
+Research Title: ${uploadData.title || 'Not specified'}
+Research Hypotheses: ${uploadData.hypotheses || 'Not specified'}
+Language: ${language}
+
+Run actual Python code using scipy, pandas, numpy, statsmodels, pingouin for all statistical computations. Return real computed values — not estimated or generated numbers.`;
+
+  const response = await fetch('/api/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ system, userMessage }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error || `API error ${response.status}`);
+  }
+
+  const data = await response.json();
+  return parseCodeExecutionResponse(data.content ?? []);
+}
+
+function parseCodeExecutionResponse(contentBlocks) {
+  const blocks = [];
+
+  for (const block of contentBlocks) {
+    switch (block.type) {
+      case 'text':
+        if (block.text?.trim()) blocks.push({ type: 'text', content: block.text });
+        break;
+
+      // Standard tool_use OR server_tool_use (newer SDK version naming)
+      case 'tool_use':
+      case 'server_tool_use': {
+        const code = block.input?.code ?? block.input?.source ?? '';
+        if (code.trim()) blocks.push({ type: 'code', content: code });
+        break;
+      }
+
+      // Standard tool_result OR code_execution_tool_result (newer SDK version)
+      case 'tool_result':
+      case 'code_execution_tool_result': {
+        let output = '';
+        const c = block.content;
+        if (typeof c === 'string') {
+          output = c;
+        } else if (Array.isArray(c)) {
+          output = c.map(x => x.text ?? '').join('\n');
+        } else if (c && typeof c === 'object') {
+          // { stdout, stderr, return_code } shape
+          output = [c.stdout, c.stderr ? `STDERR: ${c.stderr}` : ''].filter(Boolean).join('\n');
+        }
+        if (output.trim()) blocks.push({ type: 'output', content: output });
+        break;
+      }
+    }
+  }
+
+  // If nothing parsed (e.g. unexpected format) fall back to raw text
+  if (blocks.length === 0) {
+    const raw = contentBlocks.map(b => b.text ?? '').filter(Boolean).join('\n\n');
+    if (raw) blocks.push({ type: 'text', content: raw });
+  }
+
+  return { structured: true, blocks };
 }
