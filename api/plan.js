@@ -10,11 +10,11 @@ export default async function handler(req, res) {
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5',
+      model: 'claude-sonnet-4-6',
       max_tokens: 8096,
       tools: [
         {
-          type: 'code_execution_20250522',
+          type: 'code_execution_20250825',
           name: 'code_execution',
         },
       ],
