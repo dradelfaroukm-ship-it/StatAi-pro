@@ -12,6 +12,7 @@ export default async function handler(req, res) {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 8096,
+      betas: ["code-execution-2025-08-25"],
       tools: [
         {
           type: 'code_execution_20250825',
