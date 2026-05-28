@@ -101,6 +101,7 @@ export default function PlanScreen({ uploadData, planData, onPlanReady, onNext, 
   const [pricing, setPricing]             = useState(() => detectAnalysisLevel([]));
   const [planText, setPlanText]           = useState(null);
   const [planStructured, setPlanStructured] = useState(null);
+  const [planApproved, setPlanApproved]   = useState(false);
   const [editingIdx, setEditingIdx]       = useState(null);
   const [loading, setLoading]             = useState(false);
   const [error, setError]                 = useState(null);
@@ -120,7 +121,7 @@ export default function PlanScreen({ uploadData, planData, onPlanReady, onNext, 
   }, [planData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function applyPlanData(pd) {
-    if (pd.planText) setPlanText(pd.planText);
+    if (pd.planText) { setPlanText(pd.planText); setPlanApproved(false); }
     if (pd.pricing)  setPricing(pd.pricing);
     if (pd.structured) setPlanStructured(pd.structured);
     if (pd.methods?.length) {
@@ -292,6 +293,47 @@ export default function PlanScreen({ uploadData, planData, onPlanReady, onNext, 
           </div>
         </section>
 
+        {/* Plan approval section — appears once plan text is loaded */}
+        {planText && (
+          <div style={{ marginTop: 20 }}>
+            {planApproved ? (
+              <div className="banner banner--success">
+                <span style={{
+                  width: 24, height: 24, borderRadius: '50%', background: 'rgba(16,185,129,0.18)',
+                  color: 'var(--success)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}><IconCheck size={14}/></span>
+                <strong style={{ fontSize: 13 }}>{t.planApprovedBanner}</strong>
+              </div>
+            ) : (
+              <div className="card" style={{
+                padding: 20, border: '1px solid rgba(108,99,255,0.35)',
+                background: 'rgba(108,99,255,0.04)',
+              }}>
+                <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 16 }}>
+                  {t.planApprovalPrompt}
+                </div>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  <button
+                    className="btn btn--primary"
+                    onClick={() => setPlanApproved(true)}
+                    style={{ gap: 7 }}
+                  >
+                    <IconCheck size={14}/> {t.approvePlanBtn}
+                  </button>
+                  <button
+                    className="btn btn--secondary"
+                    onClick={regeneratePlan}
+                    disabled={!uploadData || loading}
+                    style={{ gap: 7 }}
+                  >
+                    ↺ {t.regeneratePlanBtn}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {error && (
           <div className="banner banner--error" style={{ marginTop: 20 }}>
             <div><strong>{t.aiError}</strong> — {error}</div>
@@ -361,7 +403,7 @@ export default function PlanScreen({ uploadData, planData, onPlanReady, onNext, 
               <button className="btn btn--secondary" disabled style={{ opacity: 0.35, cursor: 'not-allowed' }}>
                 {t.payBtn} <span className="num">{pricing.price}</span>
               </button>
-              <button className="btn btn--primary btn--lg" onClick={handleUseForFree} disabled={loading} style={{ gap: 8 }}>
+              <button className="btn btn--primary btn--lg" onClick={handleUseForFree} disabled={loading || Boolean(planText && !planApproved)} style={{ gap: 8 }}>
                 <IconBolt size={15}/>
                 {t.useFreeBtn}
                 {pricing.rawPrice && (

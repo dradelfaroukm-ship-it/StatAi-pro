@@ -181,6 +181,10 @@ const ar = {
   retryBtn: 'إعادة المحاولة',
   normallyLabel: 'عادةً',
   copied: 'تم النسخ!',
+  approvePlanBtn: 'الموافقة على الخطة الإحصائية',
+  planApprovalPrompt: 'راجع الخطة أعلاه — وافق عليها للمتابعة إلى التحليل.',
+  planApprovedBanner: 'تمت الموافقة على الخطة — جاهز لتشغيل التحليل',
+  regeneratePlanBtn: 'إعادة التوليد',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -346,6 +350,10 @@ const en = {
   retryBtn: 'Retry',
   normallyLabel: 'Normally',
   copied: 'Copied!',
+  approvePlanBtn: 'Approve Statistical Plan',
+  planApprovalPrompt: 'Review the plan above — approve it to proceed to analysis.',
+  planApprovedBanner: 'Plan approved — ready to run analysis',
+  regeneratePlanBtn: 'Regenerate',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
